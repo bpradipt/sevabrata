@@ -2,170 +2,114 @@
 <html lang="en">
 
 <head>
-  <title>Sevabrata Foundation</title>
+
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-  <script src="scripts/script.js"></script>
-  <link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Sevabrata Foundation</title>
+
+  <!-- Bootstrap core CSS 2212 -->
+  <!-- <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"> -->
+  <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <!-- Custom styles for this template -->
+  <link href="css/simple-sidebar.css" rel="stylesheet">
+  <!-- <link rel="stylesheet" href="css/styles.css"> -->
+
 </head>
 
 <body>
 
-  <div class="text-center">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light centerCls1">
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+  <div class="d-flex" id="wrapper">
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <!-- <li class="nav-item active">
-            <a class="nav-link" href="home1.html" target="mainframe">Home <span class="sr-only">(current)</span></a>
-          </li> -->
+    <!-- Sidebar -->
+    <div class="tertiaryColor border-right" id="sidebar-wrapper">
+      <div class="list-group">
+        <span class="">
+          <img src="assets/sevalog1crop.jpg" class="list-group" alt="Sevabrata Foundation">
+        </span>
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="./pages/home1.html" target="mainframe" class="list-group-item list-group-item-action tertiaryColor"><span class="listItemCls">Who We Are</span></a>
+        <a href="./pages/background1.html" target="mainframe" class="list-group-item list-group-item-action tertiaryColor"><span class="listItemCls">Our Mision</span></a>
+        <a href="./pages/success2.html" target="mainframe" class="list-group-item list-group-item-action tertiaryColor"><span class="listItemCls">Our Success</span></a>
+        <a href="./pages/contactus1.html" target="mainframe" class="list-group-item list-group-item-action tertiaryColor"><span class="listItemCls">How Can You Contribute</span></a>
+      </div>
+    </div>
+    <!-- /#sidebar-wrapper -->
 
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="goals1.html" id="homeNavbarGoalsDD" role="button"
-              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Blogs
-            </a>
-            <div class="dropdown-menu" aria-labelledby="homeNavbarGoalsDD">
-              <a class="dropdown-item" href="blog1.html" target="mainframe">Blog1</a>
-              <a class="dropdown-item" href="blog2.html" target="mainframe">Blog2</a>
-              <div class="dropdown-divider">---------------</div>
-              <a class="dropdown-item" href="blog3.html" target="mainframe">Blog3</a>
-            </div>
-          </li>
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
 
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="activities1.html" id="homeNavActivitiesDD" role="button"
-              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              News
-            </a>
-            <div class="dropdown-menu" aria-labelledby="homeNavActivitiesDD">
-              <a class="dropdown-item" href="home1.html" target="mainframe">News1</a>
-              <a class="dropdown-item" href="home1.html" target="mainframe">Another News2</a>
-              <a class="dropdown-item" href="home1.html" target="mainframe">News3 here</a>
-            </div>
-          </li>
-          
+      <nav class="navbar navbar-expand-lg navbar-light border-bottom secondaryColor">
+        <button class="btn btn-primary toggleBtn" id="menu-toggle">Toggle Menu</button>
 
-          <!-- <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="donations1.html" id="homeNavbarsuccessDD" role="button"
-              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Donate Us
-            </a>
-            <div class="dropdown-menu" aria-labelledby="homeNavbarsuccessDD">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <a class="dropdown-item" href="#">Something else here</a>
-            </div>
-          </li> -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-          <!-- <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="articles1.html" id="homeNavbarArticlesDD" role="button"
-              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Articles
-            </a>
-            <div class="dropdown-menu" aria-labelledby="homeNavbarArticlesDD">
-              <a class="dropdown-item" href="#">Article 1</a>
-              <a class="dropdown-item" href="#">Another Article</a>
-              <a class="dropdown-item" href="#">Something else here</a>
-            </div>
-          </li> -->
-
-          <li class="nav-item">
-            <a class="nav-link" href="donations1.html" target="mainframe">Donate Us</a>
-          </li>
-
-          <!-- <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="gallery1.html" id="homeNavbarGalleryDD" role="button"
-              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Galleries
-            </a>
-            <div class="dropdown-menu" aria-labelledby="homeNavbarGalleryDD">
-              <a class="dropdown-item" href="#">Gallery 1</a>
-              <a class="dropdown-item" href="#">Another Gallery</a>
-              <a class="dropdown-item" href="#">Something else here</a>
-            </div>
-          </li> -->
-
-          <li class="nav-item">
-            <a class="nav-link" href="membership1.html" target="mainframe">Membership</a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="contactus1.html" target="mainframe">Contact Us</a>
-          </li>
-        </ul>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="./pages/blogs.html" target="mainframe"></span>Blogs</a>
+              <!-- <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a> -->
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./pages/news1.html" target="mainframe">News</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./pages/membership1.html" target="mainframe">Membership</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./pages/contactus2.html" target="mainframe">Contact Us</a>
+            </li>
+          </ul>
+        </div>
         
+      </nav>
+      <div class="sevaLogoCls1">
+          <span class="sevaHeadingCls">
+            Sevabrata
+          </span>
+          <span class="sevaHeadingCls">
+            Foundation
+          </span>
       </div>
-    </nav>
-
-  </div>
-
-  <div class="container bgColorCls">
-    <div class="row headimgcls0">
-      <span class="headimgcls sevaLogoCls" style="padding-top: 15px;">
-        <img src="assets/sevalog1crop.jpg" width="180" height="150" class="imgCls1" alt="Home Image here">
-      </span>
-      <span class="headimgcls sevaLogoCls1">
-        <span class="headimgcls sevaHeadingCls">
-          Sevabrata
-        </span>
-        <span class="headimgcls sevaHeadingCls">
-          Foundation
-        </span>
-      </span>
+      <div class="tertiaryColor">&nbsp;</div>
+      <div class="container-fluid backColor">
+          <iframe class="mt-4 midbar" src="./pages/home1.html" name="mainframe"></iframe></div>
     </div>
+    <!-- /#page-content-wrapper -->
+
   </div>
-
-  <div class="container">
-    <div class="row">
-
-      <div class="sidebars">
-        <div class="leftBarBlocks">
-          <a class="leftLinksCls" href="home1.html" target="mainframe" title="Home">Home</a>
-          <a class="leftLinksCls" href="background1.html" target="mainframe" title="About Us">About Us</a>
-          <!-- <a class="leftLinksCls" href="goals1.html" target="mainframe" title="Approach">Approach</a> -->
-          <!-- <a class="leftLinksCls" href="principles1.html" target="mainframe" title="Driving Principles">Driving Principles</a> -->
-          <!-- <a class="leftLinksCls" href="activities1.html" target="mainframe" title="Activities">Activities</a> -->
-          <a class="leftLinksCls" href="success1.html" target="mainframe" title="Success Stories">Success Stories</a>
-          <!-- <a class="leftLinksCls" href="articles1.html" target="mainframe" title="Articles">Articles</a> -->
-          <!-- <a class="leftLinksCls" href="donations1.html" target="mainframe" title="Donations">Donations</a> -->
-          <!-- <a class="leftLinksCls" href="gallery1.html" target="mainframe" title="Photo Gallery">Photo Gallery</a> -->
-          <a class="leftLinksCls" href="invitation1.html" target="mainframe" title="Our Invitation">Our Invitation</a>
-          <!-- <a class="leftLinksCls" href="membership1.html" target="mainframe" title="Membership">Membership</a> -->
-          <a class="leftLinksCls" href="contactus1.html" target="mainframe" title="Contact Us">Contact Us</a>
-        </div>
-        <!-- <div class="leftBarBlocks">
-          <h6>Ongoing Campaigns</h6>
-          <a class="leftLinksCls" href="home1.html" target="mainframe" title="Kidney Tranplantation">Kidney Tranplantation</a>
-        </div>         -->
-      </div>
-
-      <iframe class="midbar" src="home1.html" name="mainframe"></iframe>
-
-      <!-- <div class="sidebars">
-        <div class="leftBarBlocks">
-          <img src="assets/v1.jpg" class="imgCls" alt="Home Image here">
-        </div>
-        <div class="leftBarBlocks">
-          <h6>"Service to man is service to god."
-            — Swami Vivekananda</h6>
-        </div>
-      </div> -->
-    </div>
-  </div>
-
   <div class="footer">
     <p>&#169; Sevabrata Foundation 2020</p>
   </div>
+  <!-- /#wrapper -->
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Menu Toggle Script -->
+  <script>
+    $("#menu-toggle").click(function(e) {
+      e.preventDefault();
+      $("#wrapper").toggleClass("toggled");
+    });
+  </script>
 
 </body>
 

@@ -1,0 +1,226 @@
+/*!
+ * Start Bootstrap - Simple Sidebar (https://startbootstrap.com/template/simple-sidebar)
+ * Copyright 2013-2020 Start Bootstrap
+ * Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-simple-sidebar/blob/master/LICENSE)
+ */
+
+ #wrapper {
+    overflow-x: hidden;
+ }
+
+ body {
+  /* overflow-y: scroll; */
+ }
+
+ .hiddenTxt {
+   color: rgb(247, 219, 143);
+   -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+ }
+
+#sidebar-wrapper {
+  min-height: 100vh;
+  margin-left: -15rem;
+  -webkit-transition: margin .25s ease-out;
+  -moz-transition: margin .25s ease-out;
+  -o-transition: margin .25s ease-out;
+  transition: margin .25s ease-out;
+}
+
+#sidebar-wrapper .sidebar-heading {
+  padding: 0.875rem 1.25rem;
+  font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+  width: 15rem;
+}
+
+#page-content-wrapper {
+  min-width: 100vw;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  margin-left: 0;
+}
+
+.holderCls {
+  border: 1px solid;
+}
+
+.midbar {
+  width: 100%;
+  height: -webkit-fill-available;
+  border: none;
+  height: 100% !important;
+  min-height: 72vh !important;
+}
+
+.container-fluid {
+  min-height: 81vh !important;
+  overflow: hidden;
+}
+
+iframe {
+  border: none;
+}
+
+iframe, object, embed {
+  max-width: 100% !important;
+  width: 100%;
+}
+
+.ltBlk {
+  width: 78%;
+}
+
+.rtBlk {
+  width: 20%;
+  /* max-width: 45rem; */
+  /* min-width: 39rem; */
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.primaryColor {
+  background-color: rgb(101, 28, 45);
+  color: rgba(255, 255, 255);
+  font-weight: bold;
+}
+
+.secondaryColor {
+  background-color: rgb(255, 192, 0);
+  color: rgba(255, 255, 255);
+  font-weight: bold;
+}
+
+.tertiaryColor {
+  background-color: rgb(166, 44, 82);
+  color: rgba(255, 255, 255);
+  font-weight: bold;
+}
+
+.backColor {
+  background-color: rgb(247, 219, 143);
+}
+
+.navbar-light .navbar-nav .active>.nav-link, .navbar-light .navbar-nav .nav-link.active, .navbar-light .navbar-nav .nav-link.show, .navbar-light .navbar-nav .show>.nav-link {
+  color: rgba(255, 255, 255);
+}
+
+.navbar-light .navbar-nav .nav-link {
+  color: rgba(255, 255, 255);
+  font-weight: bold;
+}
+
+.nav-item {
+  background-color: rgb(166, 44, 82);
+  margin-right: 0.25rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+.listItemCls {
+  border: 1px solid #fff;
+  padding: 0.1rem;
+}
+
+.btn-primary {
+  background-color:  rgb(166, 44, 82);
+  border-color: rgb(101, 28, 45);
+  font-weight: bold;
+}
+
+.btn-primary:hover {
+  background-color:  rgb(166, 44, 82);
+  border-color: rgb(101, 28, 45);
+}
+
+.btn-primary:active {
+  background-color:  rgb(166, 44, 82);
+  border-color: rgb(101, 28, 45);
+}
+
+.btn-primary:not(:disabled):not(.disabled):active, .show>.btn-primary.dropdown-toggle {
+  color: #fff;
+  background-color:  rgb(166, 44, 82) !important;
+  border-color: rgb(101, 28, 45) !important;
+  font-weight: bold;
+}
+
+.active {
+  color: rgba(255, 255, 0);
+}
+
+.sevaLogoCls1 {
+  /* height: 9rem; */
+  text-align: center !important;
+  background-color: rgb(255, 192, 0);
+  vertical-align: middle;
+}
+
+.sevaHeadingCls {
+  font-size: xx-large;
+  text-align: center;
+  vertical-align: middle;
+  overflow: hidden;
+  font-family: 'Algerian';
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: #ccc;
+  text-align: center;
+  height: 15px;
+  font-size: x-small;
+  font-weight: bolder;
+  color: #000;
+}
+
+@media only screen and (min-width: 768px) {
+  .toggleBtn {
+    display: none;
+  }
+} 
+
+@media screen and (max-width: 1024px) and (min-width: 768px) {
+  .toggleBtn {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  #sidebar-wrapper {
+    margin-left: 0;
+  }
+
+  #page-content-wrapper {
+    min-width: 0;
+    width: 100%;
+    background-color: rgb(247, 219, 143);
+  }
+
+  #wrapper.toggled #sidebar-wrapper {
+    margin-left: -15rem;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .container-fluid {
+    min-height: 81vh !important;
+    overflow: hidden;
+  }
+
+  .midbar {
+    min-height: 72vh !important;
+  }
+}
