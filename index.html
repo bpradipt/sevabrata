@@ -1,116 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <meta name="author" content="">
-
-  <title>Sevabrata Foundation</title>
-
-  <!-- Bootstrap core CSS 2212 -->
-  <!-- <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"> -->
-  <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-<!-- jQuery library -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-<!-- Popper JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-
-<!-- Latest compiled JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-  <!-- Custom styles for this template -->
-  <link href="css/simple-sidebar.css" rel="stylesheet">
-  <!-- <link rel="stylesheet" href="css/styles.css"> -->
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sevabrata Foundation - Service to Humanity</title>
+    <meta name="description" content="Sevabrata Foundation - A non-profit organization dedicated to providing medical assistance to underprivileged rural families. Service to man is service to God.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body>
-
-  <div class="d-flex" id="wrapper">
-
-    <!-- Sidebar -->
-    <div class="tertiaryColor border-right" id="sidebar-wrapper">
-      <div class="list-group">
-        <span class="">
-          <img src="assets/sevalog1crop.jpg" class="list-group" alt="Sevabrata Foundation">
-        </span>
-      </div>
-      <div class="list-group list-group-flush">
-        <a href="./pages/home1.html" target="mainframe" class="list-group-item list-group-item-action tertiaryColor"><span class="listItemCls">Who We Are</span></a>
-        <a href="./pages/background1.html" target="mainframe" class="list-group-item list-group-item-action tertiaryColor"><span class="listItemCls">Our Mision</span></a>
-        <a href="./pages/success2.html" target="mainframe" class="list-group-item list-group-item-action tertiaryColor"><span class="listItemCls">Our Success</span></a>
-        <a href="./pages/contactus1.html" target="mainframe" class="list-group-item list-group-item-action tertiaryColor"><span class="listItemCls">How Can You Contribute</span></a>
-      </div>
-    </div>
-    <!-- /#sidebar-wrapper -->
-
-    <!-- Page Content -->
-    <div id="page-content-wrapper">
-
-      <nav class="navbar navbar-expand-lg navbar-light border-bottom secondaryColor">
-        <button class="btn btn-primary toggleBtn" id="menu-toggle">Toggle Menu</button>
-
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
-            <li class="nav-item">
-              <a class="nav-link" href="./pages/blogs.html" target="mainframe"></span>Blogs</a>
-              <!-- <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a> -->
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="./pages/news1.html" target="mainframe">News</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="./pages/membership1.html" target="mainframe">Membership</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="./pages/contactus2.html" target="mainframe">Contact Us</a>
-            </li>
-          </ul>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <img src="assets/sevalog1crop.jpg" alt="Sevabrata Foundation Logo" class="logo">
+                <div class="brand-text">
+                    <h1>Sevabrata Foundation</h1>
+                    <p class="tagline">Service to Humanity</p>
+                </div>
+            </div>
+            
+            <nav class="nav">
+                <button class="nav-toggle" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu">
+                    <li><a href="#home" class="nav-link active">Home</a></li>
+                    <li><a href="#about" class="nav-link">About</a></li>
+                    <li><a href="#mission" class="nav-link">Mission</a></li>
+                    <li><a href="#campaigns" class="nav-link">Campaigns</a></li>
+                    <li><a href="#success" class="nav-link">Success Stories</a></li>
+                    <li><a href="#news" class="nav-link">News</a></li>
+                    <li><a href="#contribute" class="nav-link">Contribute</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
         </div>
-        
-      </nav>
-      <div class="sevaLogoCls1">
-          <span class="sevaHeadingCls">
-            Sevabrata
-          </span>
-          <span class="sevaHeadingCls">
-            Foundation
-          </span>
-      </div>
-      <div class="tertiaryColor">&nbsp;</div>
-      <div class="container-fluid backColor">
-          <iframe class="mt-4 midbar" src="./pages/home1.html" name="mainframe"></iframe></div>
-    </div>
-    <!-- /#page-content-wrapper -->
+    </header>
 
-  </div>
-  <div class="footer">
-    <p>&#169; Sevabrata Foundation 2020</p>
-  </div>
-  <!-- /#wrapper -->
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h2>Dedicated to Serve Others</h2>
+                <p>Extending a helping hand to those who need medical guidance, financial assistance, and psychological support in their hours of need.</p>
+                <div class="hero-quote">
+                    <img src="assets/vivekananda1.png" alt="Swami Vivekananda" class="quote-image">
+                    <blockquote>
+                        "Service to man is service to God"
+                        <cite>- Swami Vivekananda</cite>
+                    </blockquote>
+                </div>
+                <div class="hero-buttons">
+                    <a href="#contribute" class="btn btn-primary">Donate Now</a>
+                    <a href="#about" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- Bootstrap core JavaScript -->
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Who We Are</h2>
+                <p class="section-subtitle">An apolitical and non-profit organization conceived by like-minded volunteers</p>
+            </div>
+            <div class="content-grid">
+                <div class="content-main">
+                    <p>"Sevabrata" - Dedicated to serve others. The name and the motto of the organisation entwined. This apolitical and non-profit social organisation is conceived by a few like-minded volunteers, who believe in working in the spirit of service as proclaimed by Swami Vivekananda.</p>
+                    
+                    <p>Sevabrata aims to extend a helping hand for all those who look for medical guidance and all the financial assistance, logistics, and psychological support related to it. The success of our activities has inspired us to form an organization to be able to serve all who seek our support in their hours of need.</p>
+                    
+                    <div class="problems-grid">
+                        <h3>Key Problem Areas We Address</h3>
+                        <div class="problem-cards">
+                            <div class="card">
+                                <i class="fas fa-book-medical"></i>
+                                <h4>Lack of Knowledge</h4>
+                                <p>Limited awareness about medical facilities and treatment options</p>
+                            </div>
+                            <div class="card">
+                                <i class="fas fa-dollar-sign"></i>
+                                <h4>Medical Costs</h4>
+                                <p>Ever-increasing medical expenses making treatment unaffordable</p>
+                            </div>
+                            <div class="card">
+                                <i class="fas fa-wallet"></i>
+                                <h4>Financial Insolvency</h4>
+                                <p>Families unable to afford necessary medical treatments</p>
+                            </div>
+                            <div class="card">
+                                <i class="fas fa-hospital"></i>
+                                <h4>Rural Healthcare Gap</h4>
+                                <p>Unavailability of critical care facilities in rural areas</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p>Sevabrata Foundation, a registered NGO, was born from the conviction that we should aim to address the huge gap between demand versus accessibility to high quality critical medical care for thousands of underprivileged rural and semi-rural families.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- Menu Toggle Script -->
-  <script>
-    $("#menu-toggle").click(function(e) {
-      e.preventDefault();
-      $("#wrapper").toggleClass("toggled");
-    });
-  </script>
+    <!-- Mission Section -->
+    <section id="mission" class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our Mission</h2>
+                <p class="section-subtitle">Comprehensive support for medical care accessibility</p>
+            </div>
+            <div class="mission-content">
+                <div class="mission-quote">
+                    <p>"The motto of Sevabrata - 'Service of mankind is service to God' is drawn from the teachings of Swami Vivekananda. This conviction has inspired us to step forward to help the people irrespective of all barriers of caste, creed, religion and economic status."</p>
+                </div>
+                <div class="mission-points">
+                    <div class="mission-card">
+                        <div class="mission-number">1</div>
+                        <h4>Medical Advice</h4>
+                        <p>Providing proper medical advice and guidance to patients and families</p>
+                    </div>
+                    <div class="mission-card">
+                        <div class="mission-number">2</div>
+                        <h4>Financial Support</h4>
+                        <p>Arranging funds for medical treatment through donations and campaigns</p>
+                    </div>
+                    <div class="mission-card">
+                        <div class="mission-number">3</div>
+                        <h4>Logistics Support</h4>
+                        <p>Coordinating transportation, accommodation, and other logistical needs</p>
+                    </div>
+                    <div class="mission-card">
+                        <div class="mission-number">4</div>
+                        <h4>Post-Care Support</h4>
+                        <p>Ensuring continuous support during recovery and rehabilitation</p>
+                    </div>
+                    <div class="mission-card">
+                        <div class="mission-number">5</div>
+                        <h4>Follow-up Care</h4>
+                        <p>Long-term monitoring and support for sustained health outcomes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
+    <!-- Campaigns Section -->
+    <section id="campaigns" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Active Campaigns</h2>
+                <p class="section-subtitle">Current fundraising campaigns that need your support</p>
+            </div>
+            <div id="campaigns-container" class="campaigns-grid">
+                <!-- Campaigns will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Stories Section -->
+    <section id="success" class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <h2>Success Stories</h2>
+                <p class="section-subtitle">Lives we've touched and transformed</p>
+            </div>
+            <div class="stories-grid">
+                <div class="story-card">
+                    <div class="story-image">
+                        <img src="assets/poltu1.jpg" alt="Poltu Bera">
+                    </div>
+                    <div class="story-content">
+                        <h3>Poltu Bera</h3>
+                        <p class="story-subtitle">Heart Transplant Success - 2015</p>
+                        <p>Our first major success story involved Poltu Bera, who received a life-saving heart transplant. Through community support, we raised ₹15 lakhs for his treatment at BGS Global Hospital, Bangalore.</p>
+                        <div class="story-stats">
+                            <span class="stat">₹15 Lakhs Raised</span>
+                            <span class="stat">Heart Transplant</span>
+                            <span class="stat">2015</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="story-card">
+                    <div class="story-image">
+                        <img src="assets/prakash1.jpg" alt="Prakash">
+                    </div>
+                    <div class="story-content">
+                        <h3>Prakash</h3>
+                        <p class="story-subtitle">Pediatric Heart Surgery</p>
+                        <p>Young Prakash received critical heart surgery for Tetralogy of Fallot. Our quick response and fundraising efforts ensured timely medical intervention.</p>
+                        <div class="story-stats">
+                            <span class="stat">₹2.5 Lakhs Raised</span>
+                            <span class="stat">T.O.F. Surgery</span>
+                            <span class="stat">Child Care</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- News Section -->
+    <section id="news" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>In the News</h2>
+                <p class="section-subtitle">Media coverage of our work and impact</p>
+            </div>
+            <div class="news-grid">
+                <div class="news-card">
+                    <img src="assets/art1.png" alt="News Article 1">
+                    <div class="news-content">
+                        <h3>Media Coverage of Our Success Stories</h3>
+                        <p>National media coverage highlighting our successful medical interventions and community support initiatives.</p>
+                    </div>
+                </div>
+                <div class="news-card">
+                    <img src="assets/art2.png" alt="News Article 2">
+                    <div class="news-content">
+                        <h3>Recognition for Rural Healthcare Impact</h3>
+                        <p>Coverage of our work in bridging the healthcare gap in rural communities across India.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contribute Section -->
+    <section id="contribute" class="section section-primary">
+        <div class="container">
+            <div class="section-header">
+                <h2>How You Can Contribute</h2>
+                <p class="section-subtitle">Join us in our mission to serve humanity</p>
+            </div>
+            <div class="contribute-content">
+                <div class="contribute-text">
+                    <p>Every contribution, no matter how small, makes a significant difference in someone's life. Your support helps us continue our mission of providing medical assistance to those who need it most.</p>
+                </div>
+                <div class="donation-info">
+                    <div class="bank-details">
+                        <h3>Bank Details</h3>
+                        <div class="bank-info">
+                            <div class="bank-row">
+                                <strong>Account Name:</strong> SEVABRATA FOUNDATION
+                            </div>
+                            <div class="bank-row">
+                                <strong>Account Number:</strong> 4537020000293730
+                            </div>
+                            <div class="bank-row">
+                                <strong>IFSC Code:</strong> JSFB0004537
+                            </div>
+                            <div class="bank-row">
+                                <strong>Bank:</strong> Jana Small Finance Bank, Jeevanbhima Nagar
+                            </div>
+                        </div>
+                    </div>
+                    <div class="social-links">
+                        <h3>Connect With Us</h3>
+                        <div class="social-buttons">
+                            <a href="#" class="social-btn facebook">
+                                <i class="fab fa-facebook-f"></i>
+                                Facebook
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Contact Us</h2>
+                <p class="section-subtitle">Get in touch for membership and support</p>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-card">
+                        <i class="fas fa-envelope"></i>
+                        <h3>General Inquiries</h3>
+                        <p>sevabratafoundation@gmail.com</p>
+                    </div>
+                    <div class="contact-card">
+                        <i class="fas fa-user-friends"></i>
+                        <h3>Membership</h3>
+                        <p>nanda_sandip@yahoo.com</p>
+                    </div>
+                    <div class="contact-card">
+                        <i class="fas fa-hands-helping"></i>
+                        <h3>Support</h3>
+                        <p>parthaadhikari08@gmail.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="assets/sevalog1crop.jpg" alt="Sevabrata Foundation Logo" class="footer-logo">
+                    <h3>Sevabrata Foundation</h3>
+                    <p>Service to man is service to God</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="#about">About Us</a></li>
+                            <li><a href="#mission">Our Mission</a></li>
+                            <li><a href="#campaigns">Active Campaigns</a></li>
+                            <li><a href="#success">Success Stories</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Get Involved</h4>
+                        <ul>
+                            <li><a href="#contribute">Donate</a></li>
+                            <li><a href="#contact">Membership</a></li>
+                            <li><a href="#contact">Volunteer</a></li>
+                            <li><a href="#news">Latest News</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Sevabrata Foundation. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
-
 </html>
