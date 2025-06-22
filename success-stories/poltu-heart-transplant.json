@@ -1,0 +1,12 @@
+{
+  "id": "poltu-heart-transplant",
+  "patientName": "Poltu Bera",
+  "condition": "Heart Failure",
+  "treatment": "Heart Transplant",
+  "amountRaised": 1500000,
+  "year": 2015,
+  "hospital": "BGS Global Hospital, Bangalore",
+  "outcome": "Successful transplant, patient leading normal life",
+  "image": "assets/poltu1.jpg",
+  "description": "Poltu Bera was our first major success story. A 25-year-old man from rural Bengal, Poltu was suffering from end-stage heart failure. Through the generous support of our donors, we raised ₹15 lakhs for his heart transplant surgery at BGS Global Hospital, Bangalore. Today, Poltu is living a healthy, normal life and is an inspiration to our entire community."
+}

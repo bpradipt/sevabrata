@@ -4,6 +4,7 @@ class SevabrataWebsite {
     constructor() {
         this.init();
         this.loadCampaigns();
+        this.loadSuccessStories();
     }
 
     init() {
@@ -161,42 +162,179 @@ class SevabrataWebsite {
     }
 
     // Campaign management system
-    loadCampaigns() {
-        // Sample campaigns data - in a real implementation, this would come from a CMS or API
-        const campaigns = [
-            {
-                id: 'palash-kidney',
-                title: 'Palash Das - Kidney Transplant',
-                description: 'Young Palash needs urgent kidney transplant surgery. Help us save his life by contributing to his medical expenses.',
-                image: 'assets/palash1.png',
-                targetAmount: 500000,
-                raisedAmount: 125000,
-                status: 'active',
-                urgency: 'high',
-                patientAge: 28,
-                medicalCondition: 'Chronic Kidney Disease',
-                hospital: 'Apollo Hospital, Kolkata',
-                lastUpdated: '2024-01-15'
-            },
-            {
-                id: 'emergency-fund',
-                title: 'Emergency Medical Fund',
-                description: 'General fund to help patients who need immediate medical assistance. Your contribution helps us respond quickly to medical emergencies.',
-                image: 'assets/heart1.png',
-                targetAmount: 1000000,
-                raisedAmount: 350000,
-                status: 'active',
-                urgency: 'medium',
-                lastUpdated: '2024-01-10'
+    async loadCampaigns() {
+        try {
+            console.log('Starting to load campaigns...');
+            
+            // Check if we're running from file:// protocol (local file testing)
+            if (window.location.protocol === 'file:') {
+                console.log('File protocol detected, using hardcoded campaign data');
+                this.renderCampaigns(this.getFallbackCampaigns());
+                return;
             }
-        ];
+            
+            // Load all campaign data from the new directory structure
+            const [activeCampaigns, stats, categories] = await Promise.all([
+                this.loadActiveCampaigns(),
+                this.loadStats(),
+                this.loadCategories()
+            ]);
 
-        this.renderCampaigns(campaigns);
+            console.log('Loaded active campaigns:', activeCampaigns);
+            console.log('Loaded stats:', stats);
+            console.log('Loaded categories:', categories);
+
+            // Store loaded data for later use
+            this.campaignStats = stats;
+            this.campaignCategories = categories;
+            
+            this.renderCampaigns(activeCampaigns);
+        } catch (error) {
+            console.error('Error loading campaigns:', error);
+            // Fallback to hardcoded campaigns if loading fails
+            this.renderCampaigns(this.getFallbackCampaigns());
+        }
+    }
+
+    async loadActiveCampaigns() {
+        try {
+            console.log('Loading active campaigns from directory...');
+            // Load campaigns from active directory
+            const activeCampaigns = await this.loadCampaignsFromDirectory('campaigns/active/');
+            console.log('Active campaigns loaded from directory:', activeCampaigns);
+            return activeCampaigns;
+        } catch (error) {
+            console.error('Error loading active campaigns:', error);
+            return [];
+        }
+    }
+
+    async loadCampaignsFromDirectory(directory) {
+        try {
+            // Load the manifest file to get list of campaign files
+            const manifestResponse = await fetch(`${directory}manifest.json`);
+            if (!manifestResponse.ok) {
+                console.error('Failed to load campaigns manifest');
+                return [];
+            }
+            
+            const manifest = await manifestResponse.json();
+            const campaignFiles = manifest.campaigns || [];
+            const campaigns = [];
+
+            // Load each campaign file listed in the manifest
+            for (const filename of campaignFiles) {
+                try {
+                    const response = await fetch(`${directory}${filename}`);
+                    if (response.ok) {
+                        const campaign = await response.json();
+                        // Only include if status is active
+                        if (campaign.status === 'active') {
+                            campaigns.push(this.transformCampaignData(campaign));
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error loading campaign ${filename}:`, error);
+                }
+            }
+
+            return campaigns;
+        } catch (error) {
+            console.error('Error loading campaigns from directory:', error);
+            return [];
+        }
+    }
+
+    async loadStats() {
+        try {
+            const response = await fetch('campaigns/_stats.json');
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.error('Error loading stats:', error);
+        }
+        return {};
+    }
+
+    async loadCategories() {
+        try {
+            const response = await fetch('campaigns/_categories.json');
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.error('Error loading categories:', error);
+        }
+        return [];
+    }
+
+    transformCampaignData(campaignData) {
+        // Transform the new campaign data format to match the expected format
+        return {
+            id: campaignData.id,
+            title: campaignData.title,
+            description: campaignData.shortDescription,
+            fullDescription: campaignData.fullDescription,
+            image: campaignData.image,
+            targetAmount: campaignData.targetAmount,
+            raisedAmount: campaignData.raisedAmount,
+            status: campaignData.status,
+            urgency: campaignData.urgency,
+            patientAge: campaignData.patientDetails?.age,
+            medicalCondition: campaignData.patientDetails?.condition,
+            hospital: campaignData.patientDetails?.hospital,
+            lastUpdated: campaignData.lastUpdated,
+            category: campaignData.category,
+            timeline: campaignData.timeline,
+            updates: campaignData.updates
+        };
+    }
+
+    async loadSuccessStories() {
+        try {
+            // Load success stories from the success-stories directory
+            const knownStories = ['prakash-heart-surgery.json', 'poltu-heart-transplant.json'];
+            const successStories = [];
+
+            for (const filename of knownStories) {
+                try {
+                    const response = await fetch(`success-stories/${filename}`);
+                    if (response.ok) {
+                        const story = await response.json();
+                        successStories.push(story);
+                    }
+                } catch (error) {
+                    console.error(`Error loading success story ${filename}:`, error);
+                }
+            }
+
+            this.renderSuccessStories(successStories);
+        } catch (error) {
+            console.error('Error loading success stories:', error);
+        }
+    }
+
+    renderSuccessStories(stories) {
+        // This method can be used to populate a success stories section if it exists
+        // For now, just store the stories for later use
+        this.successStories = stories;
+        console.log('Success stories loaded:', stories);
     }
 
     renderCampaigns(campaigns) {
         const container = document.getElementById('campaigns-container');
-        if (!container) return;
+        if (!container) {
+            console.error('Campaigns container not found!');
+            return;
+        }
+
+        console.log('Rendering campaigns:', campaigns);
+        
+        if (campaigns.length === 0) {
+            container.innerHTML = '<div class="no-campaigns"><p>No active campaigns found.</p></div>';
+            return;
+        }
 
         container.innerHTML = campaigns.map(campaign => this.createCampaignCard(campaign)).join('');
         
@@ -271,50 +409,49 @@ class SevabrataWebsite {
         });
     }
 
-    showCampaignDetails(campaignId) {
-        // In a real implementation, this would fetch detailed information
-        // For now, we'll create a simple modal or detailed view
-        const campaignDetails = this.getCampaignDetails(campaignId);
+    async showCampaignDetails(campaignId) {
+        // Load detailed information from the new directory structure
+        const campaignDetails = await this.getCampaignDetails(campaignId);
         this.createCampaignModal(campaignDetails);
     }
 
-    getCampaignDetails(campaignId) {
-        // Sample detailed information - would come from API in real implementation
-        const details = {
-            'palash-kidney': {
-                title: 'Palash Das - Kidney Transplant Campaign',
-                fullStory: `Palash Das, a 28-year-old from rural West Bengal, has been suffering from chronic kidney disease for the past two years. Despite his family's best efforts, they cannot afford the expensive treatment required for a kidney transplant.
-
-                Palash was the sole breadwinner for his family of four, but his deteriorating health has made it impossible for him to work. The family has already exhausted their savings and borrowed money from relatives.
-
-                The doctors at Apollo Hospital, Kolkata, have confirmed that Palash urgently needs a kidney transplant to save his life. The total cost of the surgery and post-operative care is estimated at ₹5,00,000.
-
-                Every contribution, no matter how small, brings us closer to saving Palash's life. Your generosity can give him a second chance at life and help his family during this difficult time.`,
-                medicalReports: [
-                    'Kidney function test results',
-                    'Specialist consultation report',
-                    'Hospital treatment plan'
-                ],
-                timeline: [
-                    { date: '2023-12-01', event: 'Initial diagnosis confirmed' },
-                    { date: '2023-12-15', event: 'Campaign launched' },
-                    { date: '2024-01-05', event: 'Suitable donor identified' },
-                    { date: '2024-01-15', event: 'Surgery scheduled for February 2024' }
-                ]
-            },
-            'emergency-fund': {
-                title: 'Emergency Medical Fund',
-                fullStory: `Our Emergency Medical Fund is designed to provide immediate assistance to patients who face life-threatening situations and cannot afford urgent medical care.
-
-                This fund has helped numerous families over the years, enabling quick medical interventions that have saved lives. The fund covers various medical emergencies including cardiac surgeries, cancer treatments, accident victims, and critical care.
-
-                By contributing to this fund, you become part of our rapid response team that can mobilize resources within hours of receiving a genuine medical emergency request.
-
-                Your contribution helps us maintain a ready fund that can be deployed immediately when every minute counts in saving a life.`
+    async getCampaignDetails(campaignId) {
+        try {
+            // Try to find the campaign in different directories
+            const directories = ['active', 'completed', 'ended', 'archived'];
+            
+            for (const directory of directories) {
+                try {
+                    const response = await fetch(`campaigns/${directory}/${campaignId}.json`);
+                    if (response.ok) {
+                        const campaignData = await response.json();
+                        return {
+                            title: campaignData.title,
+                            fullStory: campaignData.fullDescription,
+                            timeline: campaignData.timeline,
+                            updates: campaignData.updates,
+                            documents: campaignData.documents,
+                            patientDetails: campaignData.patientDetails
+                        };
+                    }
+                } catch (error) {
+                    // Continue to next directory
+                    continue;
+                }
             }
-        };
-
-        return details[campaignId] || { title: 'Campaign Details', fullStory: 'Details not available.' };
+            
+            // If not found in any directory, return fallback
+            return { 
+                title: 'Campaign Details', 
+                fullStory: 'Campaign details not available at this time.' 
+            };
+        } catch (error) {
+            console.error('Error loading campaign details:', error);
+            return { 
+                title: 'Campaign Details', 
+                fullStory: 'Error loading campaign details.' 
+            };
+        }
     }
 
     createCampaignModal(details) {
@@ -478,6 +615,28 @@ class SevabrataWebsite {
             month: 'long',
             day: 'numeric'
         });
+    }
+
+    // Fallback campaign data for local file testing
+    getFallbackCampaigns() {
+        return [
+            {
+                id: "child-heart-surgery-fund",
+                title: "Children's Heart Surgery Fund",
+                description: "Supporting children who need life-saving heart surgeries.",
+                fullDescription: "Many children in rural India are born with congenital heart defects that require immediate surgical intervention. Unfortunately, most families cannot afford the high cost of pediatric cardiac surgery.\n\nOur Children's Heart Surgery Fund specifically focuses on helping children under 18 years of age who need heart surgery. We work closely with leading pediatric cardiac centers to ensure the best possible care.\n\nEvery child deserves a chance at a healthy life. Your contribution to this fund directly helps save young lives and gives these children the opportunity to grow up healthy and strong.\n\nSince 2018, this fund has successfully supported over 25 children's heart surgeries with a 98% success rate.",
+                image: "assets/prakash1.jpg",
+                targetAmount: 2000000,
+                raisedAmount: 890000,
+                status: "active",
+                urgency: "high",
+                patientAge: "0-18 years",
+                medicalCondition: "Congenital Heart Defects",
+                hospital: "Various Pediatric Cardiac Centers",
+                lastUpdated: "2024-01-12",
+                category: "medical"
+            }
+        ];
     }
 
     // Public API for external campaign management

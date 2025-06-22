@@ -22,14 +22,16 @@ class AdminPanel {
 
     async loadData() {
         try {
-            // In a real implementation, this would be an API call
-            // For now, we'll use the campaigns.json data
-            const response = await fetch('campaigns.json');
-            const data = await response.json();
+            // Load data from new directory structure
+            const [campaigns, successStories, statistics] = await Promise.all([
+                this.loadAllCampaigns(),
+                this.loadSuccessStories(),
+                this.loadStatistics()
+            ]);
             
-            this.campaigns = data.campaigns || [];
-            this.successStories = data.successStories || [];
-            this.statistics = data.statistics || {};
+            this.campaigns = campaigns;
+            this.successStories = successStories;
+            this.statistics = statistics;
             
             console.log('Loaded campaigns:', this.campaigns.length);
             console.log('Loaded success stories:', this.successStories.length);
@@ -38,6 +40,87 @@ class AdminPanel {
             // Fallback to sample data
             this.loadSampleData();
         }
+    }
+
+    async loadAllCampaigns() {
+        const campaigns = [];
+        const directories = ['active', 'completed', 'ended', 'archived'];
+        
+        for (const directory of directories) {
+            try {
+                const dirCampaigns = await this.loadCampaignsFromDirectory(directory);
+                campaigns.push(...dirCampaigns);
+            } catch (error) {
+                console.error(`Error loading campaigns from ${directory}:`, error);
+            }
+        }
+        
+        return campaigns;
+    }
+
+    async loadCampaignsFromDirectory(directory) {
+        // Known campaign files - in a real implementation, you'd have a directory listing API
+        const knownFiles = {
+            'active': ['child-heart-surgery-fund.json'],
+            'ended': ['palash-kidney-2024.json', 'emergency-medical-fund.json'],
+            'completed': [],
+            'archived': []
+        };
+        
+        const campaigns = [];
+        const files = knownFiles[directory] || [];
+        
+        for (const filename of files) {
+            try {
+                const response = await fetch(`campaigns/${directory}/${filename}`);
+                if (response.ok) {
+                    const campaign = await response.json();
+                    campaigns.push(campaign);
+                }
+            } catch (error) {
+                console.error(`Error loading ${filename} from ${directory}:`, error);
+            }
+        }
+        
+        return campaigns;
+    }
+
+    async loadSuccessStories() {
+        const stories = [];
+        const knownFiles = ['prakash-heart-surgery.json', 'poltu-heart-transplant.json'];
+        
+        for (const filename of knownFiles) {
+            try {
+                const response = await fetch(`success-stories/${filename}`);
+                if (response.ok) {
+                    const story = await response.json();
+                    stories.push(story);
+                }
+            } catch (error) {
+                console.error(`Error loading success story ${filename}:`, error);
+            }
+        }
+        
+        return stories;
+    }
+
+    async loadStatistics() {
+        try {
+            const response = await fetch('campaigns/_stats.json');
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.error('Error loading statistics:', error);
+        }
+        
+        return {
+            totalCampaigns: 0,
+            activeCampaigns: 0,
+            totalAmountRaised: 0,
+            livesImpacted: 0,
+            successRate: 0
+        };
     }
 
     loadSampleData() {
@@ -137,7 +220,7 @@ class AdminPanel {
                 <h3>${campaign.title}</h3>
                 <span class="status ${statusClass}">${this.capitalizeFirst(statusClass)}</span>
                 
-                <p>${campaign.shortDescription}</p>
+                <p>${campaign.shortDescription || campaign.description}</p>
                 
                 <div class="progress-info">
                     <div class="progress-bar-admin">
@@ -154,11 +237,14 @@ class AdminPanel {
                         <strong>Patient:</strong> ${campaign.patientDetails.name || 'N/A'}
                         ${campaign.patientDetails.age ? `(Age: ${campaign.patientDetails.age})` : ''}
                         ${campaign.patientDetails.condition ? `<br><strong>Condition:</strong> ${campaign.patientDetails.condition}` : ''}
+                        ${campaign.patientDetails.hospital ? `<br><strong>Hospital:</strong> ${campaign.patientDetails.hospital}` : ''}
                     </div>
                 ` : ''}
                 
                 <div style="font-size: 0.875rem; color: #666; margin-bottom: 1rem;">
                     <strong>Last Updated:</strong> ${this.formatDate(campaign.lastUpdated)}
+                    ${campaign.category ? `<br><strong>Category:</strong> ${campaign.category}` : ''}
+                    ${campaign.urgency ? `<br><strong>Urgency:</strong> ${campaign.urgency}` : ''}
                 </div>
                 
                 <div class="campaign-actions">
@@ -261,6 +347,9 @@ class AdminPanel {
         // Add to campaigns array
         this.campaigns.unshift(campaignData);
         
+        // In a real implementation, save to appropriate directory based on status
+        this.saveCampaignToDirectory(campaignData, campaignData.status);
+        
         // Update statistics
         this.statistics.totalCampaigns = (this.statistics.totalCampaigns || 0) + 1;
         this.statistics.activeCampaigns = (this.statistics.activeCampaigns || 0) + 1;
@@ -304,6 +393,9 @@ class AdminPanel {
         
         // Add to success stories array
         this.successStories.unshift(storyData);
+        
+        // In a real implementation, save to success-stories directory
+        this.saveSuccessStoryToDirectory(storyData);
         
         // Re-render
         this.renderSuccessStories();
@@ -368,9 +460,13 @@ class AdminPanel {
         if (!campaign) return;
         
         if (confirm('Mark this campaign as completed? This action cannot be undone.')) {
+            const oldStatus = campaign.status;
             campaign.status = 'completed';
             campaign.raisedAmount = campaign.targetAmount; // Assume target was reached
             campaign.lastUpdated = new Date().toISOString().split('T')[0];
+            
+            // In a real implementation, move campaign file from old status to completed directory
+            this.moveCampaignBetweenDirectories(campaign, oldStatus, 'completed');
             
             // Update statistics
             this.statistics.activeCampaigns = Math.max(0, (this.statistics.activeCampaigns || 0) - 1);
@@ -379,6 +475,37 @@ class AdminPanel {
             this.renderDashboard();
             this.showNotification('Campaign marked as completed', 'success');
         }
+    }
+
+    // Directory-based save methods (for real implementation)
+    saveCampaignToDirectory(campaign, directory) {
+        // In a real implementation, this would make an API call to save the campaign
+        // to the appropriate directory (campaigns/active/, campaigns/completed/, etc.)
+        console.log(`Would save campaign ${campaign.id} to campaigns/${directory}/`);
+        console.log('Campaign data:', campaign);
+        
+        // Note: Static file hosting doesn't allow writing files from JavaScript
+        // This would require a backend API endpoint
+        this.showNotification('Note: File saving requires backend API (not available in static hosting)', 'info');
+    }
+
+    saveSuccessStoryToDirectory(story) {
+        // In a real implementation, this would make an API call to save the success story
+        // to the success-stories/ directory
+        console.log(`Would save success story ${story.id} to success-stories/`);
+        console.log('Story data:', story);
+        
+        // Note: Static file hosting doesn't allow writing files from JavaScript
+        this.showNotification('Note: File saving requires backend API (not available in static hosting)', 'info');
+    }
+
+    moveCampaignBetweenDirectories(campaign, fromDirectory, toDirectory) {
+        // In a real implementation, this would move the campaign file between directories
+        console.log(`Would move campaign ${campaign.id} from ${fromDirectory} to ${toDirectory}`);
+        
+        // This would involve:
+        // 1. DELETE campaigns/${fromDirectory}/${campaign.id}.json
+        // 2. POST campaigns/${toDirectory}/${campaign.id}.json with campaign data
     }
 
     editSuccessStory(storyId) {

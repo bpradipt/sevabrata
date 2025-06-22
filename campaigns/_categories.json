@@ -1,0 +1,12 @@
+[
+  {
+    "id": "medical",
+    "name": "Medical",
+    "description": "Medical treatment and healthcare campaigns"
+  },
+  {
+    "id": "education",
+    "name": "Education",
+    "description": "Education support and scholarship campaigns"
+  }
+]

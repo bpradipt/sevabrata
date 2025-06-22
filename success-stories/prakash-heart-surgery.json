@@ -1,0 +1,12 @@
+{
+  "id": "prakash-heart-surgery",
+  "patientName": "Prakash",
+  "condition": "Tetralogy of Fallot",
+  "treatment": "Complete Intracardiac Repair",
+  "amountRaised": 250000,
+  "year": 2019,
+  "hospital": "Narayana Hrudayalaya, Bangalore",
+  "outcome": "Successful surgery, child completely recovered",
+  "image": "assets/prakash1.jpg",
+  "description": "Little Prakash was born with a complex congenital heart defect called Tetralogy of Fallot. His parents, daily wage workers from Odisha, could never afford the ₹2.5 lakh surgery cost. Through our Children's Heart Surgery Fund, Prakash received the life-saving surgery and is now a healthy, active child attending school regularly."
+}

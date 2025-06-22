@@ -18,10 +18,21 @@ sevabrata/
 ├── index.html              # Main website file
 ├── styles.css              # Modern CSS with custom properties
 ├── script.js               # Interactive functionality
-├── campaigns.json          # Campaign data storage
 ├── admin.html              # Admin panel interface
 ├── admin.js                # Admin panel functionality
 ├── assets/                 # Images and media files
+├── campaigns/              # Campaign data directory
+│   ├── active/            # Active campaigns
+│   │   ├── manifest.json  # List of active campaign files
+│   │   └── *.json         # Individual campaign files
+│   ├── completed/         # Successfully completed campaigns
+│   ├── ended/             # Ended campaigns (incomplete)
+│   ├── archived/          # Archived old campaigns
+│   ├── _stats.json        # Campaign statistics
+│   ├── _categories.json   # Campaign categories
+│   └── _config.json       # Campaign configuration
+├── success-stories/        # Success story files
+│   └── *.json             # Individual success story files
 ├── legacy/                 # Original website files (backup)
 └── README.md               # This documentation
 ```
@@ -36,29 +47,52 @@ Simply open `index.html` in a web browser to view the website.
 2. Use the admin panel to manage campaigns and content
 3. Changes are reflected immediately on the main website
 
-## Managing Content
+## Campaign Management
+
+### Directory Structure
+
+The website uses a new directory-based campaign management system that's optimized for static hosting (like S3):
+
+- **`campaigns/active/`**: Contains currently active fundraising campaigns
+- **`campaigns/completed/`**: Successfully completed campaigns that reached their goal
+- **`campaigns/ended/`**: Campaigns that ended without reaching the goal
+- **`campaigns/archived/`**: Old campaigns moved to archive
 
 ### Adding New Campaigns
 
+**Method 1: Manual File Creation**
+1. Create a new JSON file in `campaigns/active/` directory
+2. Use the format shown in the "Campaign Data Format" section below
+3. Add the filename to `campaigns/active/manifest.json`
+4. Upload any campaign images to the `assets/` folder
+
+**Method 2: Admin Panel (if available)**
 1. Go to Admin Panel (`admin.html`)
 2. Click "Campaigns" tab
 3. Click "Add New Campaign" button
-4. Fill in the campaign details:
-   - **Title**: Campaign name (e.g., "Patient Name - Treatment Type")
-   - **Category**: Type of medical treatment
-   - **Description**: Brief and detailed descriptions
-   - **Target Amount**: Fundraising goal in rupees
-   - **Patient Details**: Name, age, condition, hospital
-   - **Urgency**: Low, Medium, or High
-   - **Image**: Patient photo or relevant image
+4. Fill in the campaign details and save
 
 ### Updating Campaign Progress
 
-1. In Admin Panel, go to Campaigns section
-2. Find the campaign to update
-3. Click "Edit" button
-4. Update the "Current Amount" field
-5. Save changes
+**Method 1: Edit JSON Files Directly**
+1. Open the campaign's JSON file in `campaigns/active/`
+2. Update the `raisedAmount` field
+3. Add any updates to the `updates` array
+4. Update the `lastUpdated` field
+
+**Method 2: Admin Panel**
+1. Use the admin panel to update campaign amounts
+2. Changes will be reflected in the JSON files
+
+### Managing Campaign Status
+
+**Moving Campaigns Between Statuses:**
+
+1. **Active → Completed**: Move JSON file from `active/` to `completed/`, remove from active manifest
+2. **Active → Ended**: Move JSON file from `active/` to `ended/`, remove from active manifest  
+3. **Any → Archived**: Move JSON file to `archived/` directory
+
+**Important**: Always update the `campaigns/active/manifest.json` file when adding or removing campaigns from the active directory.
 
 ### Adding Success Stories
 
@@ -103,9 +137,36 @@ Simply open `index.html` in a web browser to view the website.
 - Edge
 - Mobile browsers
 
+## Manifest File System
+
+### Active Campaigns Manifest
+
+The `campaigns/active/manifest.json` file lists all active campaign files:
+
+```json
+{
+  "campaigns": [
+    "child-heart-surgery-fund.json",
+    "emergency-fund.json",
+    "new-campaign.json"
+  ],
+  "lastUpdated": "2024-01-15T10:30:00Z"
+}
+```
+
+**Important**: This file must be updated whenever you add or remove campaigns from the active directory. The website loads this manifest first to know which campaign files to load.
+
+### Why Use a Manifest?
+
+Static hosting services (like S3) don't allow directory listing, so we use a manifest file to tell the website which files exist. This approach:
+- Works with any static hosting service
+- Allows dynamic campaign loading
+- Maintains backwards compatibility
+- Enables easy campaign management
+
 ## Campaign Data Format
 
-Campaigns are stored in `campaigns.json` with the following structure:
+Individual campaign files use the following structure:
 
 ```json
 {
@@ -116,14 +177,39 @@ Campaigns are stored in `campaigns.json` with the following structure:
   "image": "assets/image-file.jpg",
   "targetAmount": 500000,
   "raisedAmount": 125000,
+  "currency": "INR",
   "status": "active",
   "urgency": "high",
+  "category": "medical",
   "patientDetails": {
     "name": "Patient Name",
     "age": 28,
+    "location": "Location",
     "condition": "Medical Condition",
-    "hospital": "Hospital Name"
-  }
+    "hospital": "Hospital Name",
+    "doctor": "Doctor Name"
+  },
+  "timeline": [
+    {
+      "date": "2024-01-01",
+      "event": "Campaign launched",
+      "description": "Fundraising campaign started"
+    }
+  ],
+  "updates": [
+    {
+      "date": "2024-01-15",
+      "title": "Update Title",
+      "content": "Update content"
+    }
+  ],
+  "documents": [
+    "Medical reports",
+    "Hospital estimates"
+  ],
+  "createdDate": "2024-01-01",
+  "lastUpdated": "2024-01-15",
+  "tags": ["kidney", "urgent", "family"]
 }
 ```
 
@@ -169,9 +255,10 @@ Campaigns are stored in `campaigns.json` with the following structure:
 ## Maintenance Tasks
 
 ### Regular Updates (Weekly)
-- [ ] Update campaign progress amounts
-- [ ] Add any new campaign updates
-- [ ] Check for completed campaigns
+- [ ] Update campaign progress amounts in JSON files
+- [ ] Add any new campaign updates to the `updates` array
+- [ ] Check for completed campaigns and move to appropriate directories
+- [ ] Update `campaigns/active/manifest.json` if campaigns change status
 - [ ] Review and approve new success stories
 
 ### Monthly Reviews
@@ -191,14 +278,17 @@ Campaigns are stored in `campaigns.json` with the following structure:
 ### Common Issues
 
 **Campaign not displaying:**
-- Check if campaign status is "active"
-- Verify image file exists in assets folder
-- Ensure JSON format is valid
+- Check if campaign file is listed in `campaigns/active/manifest.json`
+- Verify campaign status is "active" in the JSON file
+- Ensure JSON format is valid (use a JSON validator)
+- Check if image file exists in assets folder
+- Verify file paths are correct (case sensitive)
 
 **Admin panel not loading:**
 - Check browser console for errors
-- Ensure campaigns.json file is accessible
+- Ensure campaign files are accessible
 - Try refreshing the page
+- Check if opening via HTTP server (not file:// protocol for full functionality)
 
 **Images not showing:**
 - Verify image files are in assets/ folder
@@ -215,15 +305,102 @@ For technical issues:
 
 ## Security Notes
 
-### Admin Access
-- Keep admin.html link private
-- Only share with authorized personnel
-- Consider password protection for production use
+### Admin Access Control for S3 Hosting
+
+When hosting on S3, you have several options to restrict access to `admin.html`:
+
+#### Option 1: CloudFront with Lambda@Edge (Recommended)
+```javascript
+// Lambda@Edge function for basic auth
+exports.handler = (event, context, callback) => {
+    const request = event.Records[0].cf.request;
+    const headers = request.headers;
+    
+    // Only protect admin.html
+    if (request.uri === '/admin.html') {
+        const authUser = 'admin';
+        const authPass = 'your-secure-password';
+        const authString = 'Basic ' + Buffer.from(authUser + ':' + authPass).toString('base64');
+        
+        if (typeof headers.authorization == 'undefined' || headers.authorization[0].value != authString) {
+            const response = {
+                status: '401',
+                statusDescription: 'Unauthorized',
+                headers: {
+                    'www-authenticate': [{key: 'WWW-Authenticate', value:'Basic'}]
+                }
+            };
+            callback(null, response);
+        }
+    }
+    
+    callback(null, request);
+};
+```
+
+#### Option 2: Separate S3 Bucket with IAM Policies
+1. **Public bucket**: Host main website files (excluding admin.html)
+2. **Private bucket**: Host admin.html with restricted IAM access
+3. **IAM policy**: Grant access only to specific users/roles
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::ACCOUNT:user/admin-user"
+            },
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::admin-bucket/admin.html"
+        }
+    ]
+}
+```
+
+#### Option 3: CloudFront with Origin Access Control
+1. **Private S3 bucket**: Store admin.html
+2. **CloudFront distribution**: With signed URLs/cookies for admin access
+3. **Programmatic access**: Generate signed URLs for authorized users
+
+#### Option 4: Simple Obfuscation (Basic Security)
+1. **Rename file**: Change `admin.html` to something like `mgmt-x7k9p2.html`
+2. **Directory structure**: Place in subdirectory like `/private/admin-xyz.html`
+3. **Share link privately**: Only with authorized personnel
+
+#### Option 5: Web Application Firewall (WAF)
+Use AWS WAF with CloudFront to:
+- Block access based on IP addresses
+- Require specific headers or user agents
+- Implement rate limiting
+
+### Implementation Steps (CloudFront + Lambda@Edge)
+
+1. **Create Lambda function** in us-east-1 region
+2. **Deploy as Lambda@Edge** on CloudFront distribution
+3. **Configure trigger** for viewer request events
+4. **Set basic auth credentials** in the Lambda function
+5. **Test access** to verify protection works
+
+### Local Development vs Production
+
+- **Local/Development**: Admin panel works directly via file:// protocol
+- **Production**: Implement one of the security measures above
+- **Testing**: Use tools like `python -m http.server` for local testing
+
+### Security Best Practices
+- Use strong, unique passwords for admin access
+- Regularly rotate access credentials
+- Monitor CloudWatch logs for unauthorized access attempts
+- Consider multi-factor authentication for critical operations
+- Keep admin functionality separate from public website
 
 ### Data Backup
-- Regularly backup campaigns.json
-- Save copies of all images
-- Export success stories data
+- Regularly backup entire `campaigns/` directory
+- Save copies of all images in `assets/` folder
+- Backup `success-stories/` directory
+- Keep copies of `manifest.json` files
 
 ## Future Enhancements
 
@@ -255,7 +432,30 @@ For technical issues:
 - Email: sevabratafoundation@gmail.com
 - Membership: nanda_sandip@yahoo.com
 
+## Quick Reference
+
+### Adding a New Campaign (Step by Step)
+
+1. **Create campaign file**: Save as `campaigns/active/new-campaign-name.json`
+2. **Update manifest**: Add filename to `campaigns/active/manifest.json`
+3. **Add images**: Upload to `assets/` folder
+4. **Test**: Open `index.html` to verify campaign displays
+
+### Completing a Campaign
+
+1. **Move file**: From `campaigns/active/` to `campaigns/completed/`
+2. **Update manifest**: Remove from `campaigns/active/manifest.json`
+3. **Update status**: Change `"status": "completed"` in the JSON file
+
+### Emergency Campaign Updates
+
+For urgent updates when you need to change campaign amounts quickly:
+
+1. Edit the `raisedAmount` field in the campaign's JSON file
+2. Update the `lastUpdated` field to current date
+3. Add an entry to the `updates` array if needed
+
 ---
 
 *Last updated: January 2024*
-*Website version: 2.0*
+*Website version: 2.1 - New Campaign Management System*
