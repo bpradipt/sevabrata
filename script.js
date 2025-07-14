@@ -81,8 +81,12 @@ class SevabrataWebsite {
         const mobileMenu = document.querySelector('.nav-menu');
 
         if (mobileMenuToggle && mobileMenu) {
-            mobileMenuToggle.addEventListener('click', () => {
+            mobileMenuToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Mobile menu toggle clicked');
                 mobileMenu.classList.toggle('active');
+                console.log('Menu active class:', mobileMenu.classList.contains('active'));
                 this.animateHamburger(mobileMenuToggle);
             });
 
