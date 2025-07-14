@@ -1061,6 +1061,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add some additional CSS for campaign cards
     const additionalStyles = `
         <style>
+            .campaigns-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 2rem;
+                max-width: 100%;
+            }
+            
+            /* Prevent single campaign cards from becoming too wide */
+            .campaigns-grid:has(.campaign-card:only-child) .campaign-card,
+            .campaigns-grid .campaign-card:only-child {
+                max-width: 400px;
+                margin: 0 auto;
+            }
+            
+            /* Alternative for browsers that don't support :has() */
+            .campaigns-grid .campaign-card:first-child:last-child {
+                max-width: 400px;
+                margin: 0 auto;
+            }
+            
             .campaigns-tabs {
                 display: flex;
                 gap: 0;
@@ -1122,6 +1142,58 @@ document.addEventListener('DOMContentLoaded', () => {
                 opacity: 0.95;
             }
             
+            .campaign-card {
+                overflow: hidden;
+                position: relative;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            
+            .campaign-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            }
+            
+            .campaign-card * {
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .campaign-card img {
+                max-width: 100%;
+                max-height: 200px;
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                display: block;
+            }
+            
+            .campaign-content {
+                padding: 1.5rem;
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .campaign-title {
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
+                line-height: 1.4;
+                margin-bottom: 1rem;
+            }
+            
+            .campaign-description {
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                line-height: 1.5;
+                margin-bottom: 1rem;
+            }
+            
             .success-badge {
                 background-color: #28a745;
                 color: white;
@@ -1174,6 +1246,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 .timeline-date {
                     min-width: auto;
+                }
+                
+                /* Mobile single card layout fixes */
+                .campaigns-grid .campaign-card:first-child:last-child {
+                    max-width: 100%;
+                    margin: 0;
+                }
+                
+                .campaigns-grid {
+                    grid-template-columns: 1fr;
+                    gap: 1rem;
+                }
+                
+                .campaign-card {
+                    max-width: 100%;
+                    width: 100%;
                 }
             }
         </style>
