@@ -18,9 +18,22 @@
     
     // Function to get admin password from environment variable
     function getAdminPassword() {
-        // Check if SEVABRATA_ADMIN_PASSWORD environment variable is set
-        if (typeof process !== 'undefined' && process.env && process.env.SEVABRATA_ADMIN_PASSWORD) {
-            return process.env.SEVABRATA_ADMIN_PASSWORD;
+        // For local development, check if password is set in a global config
+        if (typeof window !== 'undefined' && window.SEVABRATA_ADMIN_PASSWORD) {
+            return window.SEVABRATA_ADMIN_PASSWORD;
+        }
+        
+        // Check if SEVABRATA_CONFIG is available (can be set in HTML)
+        if (typeof window !== 'undefined' && window.SEVABRATA_CONFIG && window.SEVABRATA_CONFIG.adminPassword) {
+            return window.SEVABRATA_CONFIG.adminPassword;
+        }
+        
+        // For local development, check localStorage as fallback
+        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+            const localPassword = localStorage.getItem('sevabrata_admin_password');
+            if (localPassword) {
+                return localPassword;
+            }
         }
         
         // No password configured - admin panel will not work
@@ -105,12 +118,15 @@
                 </div>
                 <h2 style="margin-bottom: 1rem; color: #333;">Admin Panel Disabled</h2>
                 <p style="margin-bottom: 1.5rem; color: #666; line-height: 1.5;">
-                    The admin panel requires the SEVABRATA_ADMIN_PASSWORD environment variable to be set.
-                    This is only available in local development environments.
+                    The admin panel requires a password to be configured for local development.
+                    Choose one of the methods below to set up admin access:
                 </p>
                 <div style="text-align: left; background: #f8f9fa; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
-                    <p style="margin: 0 0 0.5rem 0; font-weight: bold;">For Local Development:</p>
-                    <code style="font-size: 0.875rem; color: #495057;">SEVABRATA_ADMIN_PASSWORD=your_password python3 -m http.server 8000</code>
+                    <p style="margin: 0 0 0.5rem 0; font-weight: bold;">Option 1: Browser Console (Recommended)</p>
+                    <code style="font-size: 0.875rem; color: #495057; display: block; margin-bottom: 1rem;">localStorage.setItem('sevabrata_admin_password', 'admin')</code>
+                    
+                    <p style="margin: 0 0 0.5rem 0; font-weight: bold;">Option 2: HTML Configuration</p>
+                    <code style="font-size: 0.875rem; color: #495057; display: block;">window.SEVABRATA_ADMIN_PASSWORD = 'admin';</code>
                 </div>
                 <div style="display: flex; gap: 1rem; justify-content: center;">
                     <button id="config-cancel" style="
@@ -122,6 +138,15 @@
                         cursor: pointer;
                         font-size: 1rem;
                     ">Go Back</button>
+                    <button id="config-setup" style="
+                        background: #007bff;
+                        color: white;
+                        border: none;
+                        padding: 0.75rem 1.5rem;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 1rem;
+                    ">Quick Setup</button>
                 </div>
             `;
             
@@ -131,6 +156,17 @@
             // Event listeners
             dialog.querySelector('#config-cancel').addEventListener('click', () => {
                 this.redirectToHome();
+            });
+            
+            dialog.querySelector('#config-setup').addEventListener('click', () => {
+                // Quick setup - set default password in localStorage
+                localStorage.setItem('sevabrata_admin_password', 'admin');
+                document.body.removeChild(overlay);
+                document.body.style.overflow = '';
+                
+                // Reload CONFIG and retry initialization
+                CONFIG.adminPassword = getAdminPassword();
+                this.init();
             });
             
             // Prevent background interaction

@@ -262,17 +262,41 @@ http://localhost:8000/admin.html
 ```
 
 **Admin Authentication**:
-The admin panel requires the `SEVABRATA_ADMIN_PASSWORD` environment variable to be set for local development:
+The admin panel requires a password to be configured for local development. There are several ways to set this up:
 
-```bash
-# Start local server with admin access
-SEVABRATA_ADMIN_PASSWORD=your_password python3 -m http.server 8000
+**Option 1: Quick Setup (Recommended)**
+1. Navigate to `http://localhost:8000/admin.html`
+2. Click "Quick Setup" button when prompted
+3. Uses default password: `admin`
+
+**Option 2: Browser Console**
+```javascript
+// In browser console, set custom password
+localStorage.setItem('sevabrata_admin_password', 'your_password');
+```
+
+**Option 3: HTML Configuration**
+```javascript
+// Add to admin.html before admin-auth.js
+<script>
+window.SEVABRATA_ADMIN_PASSWORD = 'your_password';
+</script>
+```
+
+**Option 4: Global Config**
+```javascript
+// Add to admin.html before admin-auth.js
+<script>
+window.SEVABRATA_CONFIG = {
+    adminPassword: 'your_password'
+};
+</script>
 ```
 
 **Security Note**: 
-- The admin panel only works when the environment variable is set
+- The admin panel only works when a password is configured
 - For S3 deployment, simply exclude `admin.html` and `admin-auth.js` files
-- Without the environment variable, the admin panel will show a "disabled" message
+- Without a configured password, the admin panel will show a "disabled" message
 
 **Admin Features**:
 - Create new campaigns via web form
