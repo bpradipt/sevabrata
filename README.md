@@ -1,6 +1,6 @@
 # Sevabrata Foundation Website
 
-A modern, responsive website for the Sevabrata Foundation - a non-profit organization dedicated to providing medical assistance to underprivileged families.
+A modern, responsive website for the Sevabrata Foundation - a non-profit organization dedicated to providing medical assistance and education support to underprivileged families.
 
 ## Features
 
@@ -13,7 +13,7 @@ A modern, responsive website for the Sevabrata Foundation - a non-profit organiz
 
 ## File Structure
 
-```
+```sh
 sevabrata/
 ├── index.html              # Main website file
 ├── styles.css              # Modern CSS with custom properties
@@ -26,8 +26,6 @@ sevabrata/
 │   │   ├── manifest.json  # List of active campaign files
 │   │   └── *.json         # Individual campaign files
 │   ├── completed/         # Successfully completed campaigns
-│   ├── ended/             # Ended campaigns (incomplete)
-│   ├── archived/          # Archived old campaigns
 │   ├── _stats.json        # Campaign statistics
 │   ├── _categories.json   # Campaign categories
 │   └── _config.json       # Campaign configuration
@@ -37,16 +35,6 @@ sevabrata/
 └── README.md               # This documentation
 ```
 
-## Getting Started
-
-### For Website Visitors
-Simply open `index.html` in a web browser to view the website.
-
-### For Administrators
-1. Open `admin.html` in a web browser
-2. Use the admin panel to manage campaigns and content
-3. Changes are reflected immediately on the main website
-
 ## Campaign Management
 
 ### Directory Structure
@@ -55,8 +43,6 @@ The website uses a new directory-based campaign management system that's optimiz
 
 - **`campaigns/active/`**: Contains currently active fundraising campaigns
 - **`campaigns/completed/`**: Successfully completed campaigns that reached their goal
-- **`campaigns/ended/`**: Campaigns that ended without reaching the goal
-- **`campaigns/archived/`**: Old campaigns moved to archive
 
 ### Adding New Campaigns
 
@@ -130,12 +116,6 @@ The website uses a new directory-based campaign management system that's optimiz
 - **Tablet**: 768px to 1023px  
 - **Desktop**: 1024px and above
 
-### Browser Support
-- Chrome (recommended)
-- Firefox
-- Safari
-- Edge
-- Mobile browsers
 
 ## Manifest File System
 
@@ -216,6 +196,7 @@ Individual campaign files use the following structure:
 ## Image Management
 
 ### Adding Images
+
 1. Place images in the `assets/` folder
 2. Use descriptive filenames (e.g., `patient-name-photo.jpg`)
 3. Recommended image sizes:
@@ -224,6 +205,7 @@ Individual campaign files use the following structure:
    - Success story images: 500x400px
 
 ### Image Formats
+
 - **Preferred**: JPG for photos, PNG for graphics
 - **Maximum size**: 2MB per image
 - **Minimum resolution**: 300x200px
@@ -233,11 +215,13 @@ Individual campaign files use the following structure:
 ### Writing Campaign Descriptions
 
 **Short Description (for cards):**
+
 - Keep under 150 characters
 - Focus on urgency and patient need
 - Example: "Young Palash needs urgent kidney transplant surgery. Help us save his life."
 
 **Full Description (for detailed view):**
+
 - Tell the complete story
 - Include medical background
 - Explain financial situation
@@ -254,30 +238,21 @@ Individual campaign files use the following structure:
 
 ## Maintenance Tasks
 
-### Regular Updates (Weekly)
+### Regular Updates (On need basis)
 - [ ] Update campaign progress amounts in JSON files
 - [ ] Add any new campaign updates to the `updates` array
 - [ ] Check for completed campaigns and move to appropriate directories
 - [ ] Update `campaigns/active/manifest.json` if campaigns change status
 - [ ] Review and approve new success stories
 
-### Monthly Reviews
-- [ ] Analyze campaign performance
-- [ ] Update website statistics
-- [ ] Review and update contact information
-- [ ] Check all links and forms
 
-### Annual Tasks
-- [ ] Backup all data and images
-- [ ] Review and update mission statements
-- [ ] Update team information
-- [ ] Refresh success story highlights
 
 ## Troubleshooting
 
 ### Common Issues
 
 **Campaign not displaying:**
+
 - Check if campaign file is listed in `campaigns/active/manifest.json`
 - Verify campaign status is "active" in the JSON file
 - Ensure JSON format is valid (use a JSON validator)
@@ -285,12 +260,13 @@ Individual campaign files use the following structure:
 - Verify file paths are correct (case sensitive)
 
 **Admin panel not loading:**
+
 - Check browser console for errors
 - Ensure campaign files are accessible
 - Try refreshing the page
-- Check if opening via HTTP server (not file:// protocol for full functionality)
 
 **Images not showing:**
+
 - Verify image files are in assets/ folder
 - Check file names match exactly (case sensitive)
 - Ensure image files are not corrupted
@@ -303,134 +279,12 @@ For technical issues:
 3. Test in different browsers
 4. Contact development team if needed
 
-## Security Notes
-
-### Admin Access Control for S3 Hosting
-
-When hosting on S3, you have several options to restrict access to `admin.html`:
-
-#### Option 1: CloudFront with Lambda@Edge (Recommended)
-```javascript
-// Lambda@Edge function for basic auth
-exports.handler = (event, context, callback) => {
-    const request = event.Records[0].cf.request;
-    const headers = request.headers;
-    
-    // Only protect admin.html
-    if (request.uri === '/admin.html') {
-        const authUser = 'admin';
-        const authPass = 'your-secure-password';
-        const authString = 'Basic ' + Buffer.from(authUser + ':' + authPass).toString('base64');
-        
-        if (typeof headers.authorization == 'undefined' || headers.authorization[0].value != authString) {
-            const response = {
-                status: '401',
-                statusDescription: 'Unauthorized',
-                headers: {
-                    'www-authenticate': [{key: 'WWW-Authenticate', value:'Basic'}]
-                }
-            };
-            callback(null, response);
-        }
-    }
-    
-    callback(null, request);
-};
-```
-
-#### Option 2: Separate S3 Bucket with IAM Policies
-1. **Public bucket**: Host main website files (excluding admin.html)
-2. **Private bucket**: Host admin.html with restricted IAM access
-3. **IAM policy**: Grant access only to specific users/roles
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "arn:aws:iam::ACCOUNT:user/admin-user"
-            },
-            "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::admin-bucket/admin.html"
-        }
-    ]
-}
-```
-
-#### Option 3: CloudFront with Origin Access Control
-1. **Private S3 bucket**: Store admin.html
-2. **CloudFront distribution**: With signed URLs/cookies for admin access
-3. **Programmatic access**: Generate signed URLs for authorized users
-
-#### Option 4: Simple Obfuscation (Basic Security)
-1. **Rename file**: Change `admin.html` to something like `mgmt-x7k9p2.html`
-2. **Directory structure**: Place in subdirectory like `/private/admin-xyz.html`
-3. **Share link privately**: Only with authorized personnel
-
-#### Option 5: Web Application Firewall (WAF)
-Use AWS WAF with CloudFront to:
-- Block access based on IP addresses
-- Require specific headers or user agents
-- Implement rate limiting
-
-### Implementation Steps (CloudFront + Lambda@Edge)
-
-1. **Create Lambda function** in us-east-1 region
-2. **Deploy as Lambda@Edge** on CloudFront distribution
-3. **Configure trigger** for viewer request events
-4. **Set basic auth credentials** in the Lambda function
-5. **Test access** to verify protection works
-
-### Local Development vs Production
-
-- **Local/Development**: Admin panel works directly via file:// protocol
-- **Production**: Implement one of the security measures above
-- **Testing**: Use tools like `python -m http.server` for local testing
-
-### Security Best Practices
-- Use strong, unique passwords for admin access
-- Regularly rotate access credentials
-- Monitor CloudWatch logs for unauthorized access attempts
-- Consider multi-factor authentication for critical operations
-- Keep admin functionality separate from public website
-
 ### Data Backup
+
 - Regularly backup entire `campaigns/` directory
 - Save copies of all images in `assets/` folder
 - Backup `success-stories/` directory
 - Keep copies of `manifest.json` files
-
-## Future Enhancements
-
-### Planned Features
-- [ ] Online payment integration
-- [ ] Email notification system
-- [ ] Social media sharing
-- [ ] Volunteer management
-- [ ] Donor management system
-- [ ] Mobile app
-
-### Technical Improvements
-- [ ] Database integration
-- [ ] Content Management System (CMS)
-- [ ] Automated backups
-- [ ] Advanced analytics
-- [ ] SEO optimization
-
-## Contact Information
-
-**For website issues:**
-- Technical support: [Contact development team]
-
-**For content updates:**
-- Campaign managers: Use admin panel
-- Emergency updates: [Contact admin]
-
-**General foundation contact:**
-- Email: sevabratafoundation@gmail.com
-- Membership: nanda_sandip@yahoo.com
 
 ## Quick Reference
 
