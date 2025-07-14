@@ -1,5 +1,118 @@
 // Admin Panel JavaScript for Sevabrata Foundation
 
+// Global variable for admin panel instance
+let adminPanel;
+
+// Global functions for HTML onclick handlers
+function showSection(sectionId) {
+    // Hide all sections
+    document.querySelectorAll('.admin-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Show target section
+    document.getElementById(sectionId).classList.add('active');
+    
+    // Update navigation
+    document.querySelectorAll('.admin-nav button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Find and activate the clicked button
+    const clickedButton = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+    if (clickedButton) {
+        clickedButton.classList.add('active');
+    }
+}
+
+function showAddCampaignModal() {
+    if (adminPanel) {
+        adminPanel.showModal('add-campaign-modal');
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function showAddStoryModal() {
+    if (adminPanel) {
+        adminPanel.showModal('add-story-modal');
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function closeModal(modalId) {
+    if (adminPanel) {
+        adminPanel.closeModal(modalId);
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function saveContent() {
+    if (adminPanel) {
+        adminPanel.saveContent();
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function saveSettings() {
+    if (adminPanel) {
+        adminPanel.saveSettings();
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function reloadCampaignCounts() {
+    if (adminPanel) {
+        adminPanel.reloadCampaignCounts();
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function editSuccessStory(storyId) {
+    if (adminPanel) {
+        adminPanel.editSuccessStory(storyId);
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function deleteSuccessStory(storyId) {
+    if (adminPanel) {
+        adminPanel.deleteSuccessStory(storyId);
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function editCampaign(campaignId) {
+    if (adminPanel) {
+        adminPanel.editCampaign(campaignId);
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function toggleCampaignStatus(campaignId) {
+    if (adminPanel) {
+        adminPanel.toggleCampaignStatus(campaignId);
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function completeCampaign(campaignId) {
+    if (adminPanel) {
+        adminPanel.completeCampaign(campaignId);
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
 class AdminPanel {
     constructor() {
         this.campaigns = [];
@@ -10,7 +123,6 @@ class AdminPanel {
     async init() {
         try {
             await this.loadData();
-            this.renderDashboard();
             this.renderCampaigns();
             this.renderSuccessStories();
             this.setupEventListeners();
@@ -23,18 +135,19 @@ class AdminPanel {
     async loadData() {
         try {
             // Load data from new directory structure
-            const [campaigns, successStories, statistics] = await Promise.all([
+            const [campaigns, successStories, campaignCounts] = await Promise.all([
                 this.loadAllCampaigns(),
                 this.loadSuccessStories(),
-                this.loadStatistics()
+                this.loadCampaignCounts()
             ]);
-            
+
             this.campaigns = campaigns;
             this.successStories = successStories;
-            this.statistics = statistics;
-            
+            this.campaignCounts = campaignCounts;
+
             console.log('Loaded campaigns:', this.campaigns.length);
             console.log('Loaded success stories:', this.successStories.length);
+            console.log('Campaign counts:', this.campaignCounts);
         } catch (error) {
             console.error('Error loading data:', error);
             // Fallback to sample data
@@ -42,10 +155,38 @@ class AdminPanel {
         }
     }
 
+    async loadCampaignCounts() {
+        const counts = {
+            active: 0,
+            ended: 0,
+            completed: 0,
+            archived: 0,
+            total: 0
+        };
+
+        const directories = ['active', 'ended'];
+
+        for (const directory of directories) {
+            try {
+                const manifestResponse = await fetch(`campaigns/${directory}/manifest.json`);
+                if (manifestResponse.ok) {
+                    const manifest = await manifestResponse.json();
+                    const count = (manifest.campaigns || []).length;
+                    counts[directory] = count;
+                    counts.total += count;
+                }
+            } catch (error) {
+                console.error(`Error loading manifest for ${directory}:`, error);
+            }
+        }
+
+        return counts;
+    }
+
     async loadAllCampaigns() {
         const campaigns = [];
         const directories = ['active', 'completed', 'ended', 'archived'];
-        
+
         for (const directory of directories) {
             try {
                 const dirCampaigns = await this.loadCampaignsFromDirectory(directory);
@@ -54,41 +195,46 @@ class AdminPanel {
                 console.error(`Error loading campaigns from ${directory}:`, error);
             }
         }
-        
+
         return campaigns;
     }
 
     async loadCampaignsFromDirectory(directory) {
-        // Known campaign files - in a real implementation, you'd have a directory listing API
-        const knownFiles = {
-            'active': ['child-heart-surgery-fund.json'],
-            'ended': ['palash-kidney-2024.json', 'emergency-medical-fund.json'],
-            'completed': [],
-            'archived': []
-        };
-        
-        const campaigns = [];
-        const files = knownFiles[directory] || [];
-        
-        for (const filename of files) {
-            try {
-                const response = await fetch(`campaigns/${directory}/${filename}`);
-                if (response.ok) {
-                    const campaign = await response.json();
-                    campaigns.push(campaign);
-                }
-            } catch (error) {
-                console.error(`Error loading ${filename} from ${directory}:`, error);
+        try {
+            // Load manifest file to get list of campaigns
+            const manifestResponse = await fetch(`campaigns/${directory}/manifest.json`);
+            if (!manifestResponse.ok) {
+                console.log(`No manifest found for ${directory}, skipping...`);
+                return [];
             }
+
+            const manifest = await manifestResponse.json();
+            const campaigns = [];
+
+            // Load each campaign from the manifest
+            for (const filename of manifest.campaigns || []) {
+                try {
+                    const response = await fetch(`campaigns/${directory}/${filename}`);
+                    if (response.ok) {
+                        const campaign = await response.json();
+                        campaigns.push(campaign);
+                    }
+                } catch (error) {
+                    console.error(`Error loading ${filename} from ${directory}:`, error);
+                }
+            }
+
+            return campaigns;
+        } catch (error) {
+            console.error(`Error loading campaigns from ${directory}:`, error);
+            return [];
         }
-        
-        return campaigns;
     }
 
     async loadSuccessStories() {
         const stories = [];
         const knownFiles = ['prakash-heart-surgery.json', 'poltu-heart-transplant.json'];
-        
+
         for (const filename of knownFiles) {
             try {
                 const response = await fetch(`success-stories/${filename}`);
@@ -100,7 +246,7 @@ class AdminPanel {
                 console.error(`Error loading success story ${filename}:`, error);
             }
         }
-        
+
         return stories;
     }
 
@@ -113,7 +259,7 @@ class AdminPanel {
         } catch (error) {
             console.error('Error loading statistics:', error);
         }
-        
+
         return {
             totalCampaigns: 0,
             activeCampaigns: 0,
@@ -124,52 +270,15 @@ class AdminPanel {
     }
 
     loadSampleData() {
-        this.campaigns = [
-            {
-                id: 'palash-kidney-2024',
-                title: 'Palash Das - Kidney Transplant',
-                shortDescription: 'Young Palash needs urgent kidney transplant surgery.',
-                targetAmount: 500000,
-                raisedAmount: 125000,
-                status: 'active',
-                urgency: 'high',
-                patientDetails: {
-                    name: 'Palash Das',
-                    age: 28,
-                    condition: 'Chronic Kidney Disease'
-                },
-                lastUpdated: '2024-01-15'
-            },
-            {
-                id: 'emergency-fund',
-                title: 'Emergency Medical Fund',
-                shortDescription: 'General fund for immediate medical assistance.',
-                targetAmount: 1000000,
-                raisedAmount: 350000,
-                status: 'active',
-                urgency: 'medium',
-                lastUpdated: '2024-01-10'
-            }
-        ];
-
-        this.successStories = [
-            {
-                id: 'poltu-heart-transplant',
-                patientName: 'Poltu Bera',
-                condition: 'Heart Failure',
-                treatment: 'Heart Transplant',
-                amountRaised: 1500000,
-                year: 2015,
-                outcome: 'Successful transplant, patient leading normal life'
-            }
-        ];
-
-        this.statistics = {
-            totalCampaigns: 48,
-            activeCampaigns: 8,
-            totalAmountRaised: 12500000,
-            livesImpacted: 156,
-            successRate: 92
+        // Use empty data if loading fails - we'll rely on real manifest files
+        this.campaigns = [];
+        this.successStories = [];
+        this.campaignCounts = {
+            active: 0,
+            ended: 0,
+            completed: 0,
+            archived: 0,
+            total: 0
         };
     }
 
@@ -194,27 +303,41 @@ class AdminPanel {
         });
     }
 
-    renderDashboard() {
-        const stats = this.statistics;
+    renderCampaignStats() {
+        // Use manifest-based counts for accurate statistics
+        const counts = this.campaignCounts || { active: 0, ended: 0, completed: 0, total: 0 };
+
+        // Calculate completed campaigns (ended + completed)
+        const completedCampaigns = counts.ended + counts.completed;
+
+        // Calculate total raised from loaded campaigns (only for display purposes)
+        const totalRaised = (this.campaigns || []).reduce((sum, c) => sum + (c.raisedAmount || 0), 0);
+
+        // Update the display with null checks
+        const totalCampaignsEl = document.getElementById('total-campaigns');
+        const activeCampaignsEl = document.getElementById('active-campaigns');
+        const completedCampaignsEl = document.getElementById('completed-campaigns');
+        const totalRaisedEl = document.getElementById('total-raised');
         
-        document.getElementById('total-campaigns').textContent = stats.totalCampaigns || '0';
-        document.getElementById('active-campaigns').textContent = stats.activeCampaigns || '0';
-        document.getElementById('total-raised').textContent = this.formatCurrency(stats.totalAmountRaised || 0);
-        document.getElementById('lives-impacted').textContent = stats.livesImpacted || '0';
-        document.getElementById('success-rate').textContent = `${stats.successRate || 0}%`;
+        if (totalCampaignsEl) totalCampaignsEl.textContent = counts.total;
+        if (activeCampaignsEl) activeCampaignsEl.textContent = counts.active;
+        if (completedCampaignsEl) completedCampaignsEl.textContent = completedCampaigns;
+        if (totalRaisedEl) totalRaisedEl.textContent = this.formatCurrency(totalRaised);
     }
 
     renderCampaigns() {
         const container = document.getElementById('campaigns-list');
         if (!container) return;
 
-        container.innerHTML = this.campaigns.map(campaign => this.createCampaignAdminCard(campaign)).join('');
+        const campaigns = this.campaigns || [];
+        container.innerHTML = campaigns.map(campaign => this.createCampaignAdminCard(campaign)).join('');
+        this.renderCampaignStats();
     }
 
     createCampaignAdminCard(campaign) {
         const progressPercentage = Math.round((campaign.raisedAmount / campaign.targetAmount) * 100);
         const statusClass = campaign.status || 'active';
-        
+
         return `
             <div class="campaign-admin-card" data-campaign-id="${campaign.id}">
                 <h3>${campaign.title}</h3>
@@ -248,13 +371,13 @@ class AdminPanel {
                 </div>
                 
                 <div class="campaign-actions">
-                    <button class="btn-edit" onclick="adminPanel.editCampaign('${campaign.id}')">
+                    <button class="btn-edit" onclick="editCampaign('${campaign.id}')">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button class="btn-pause" onclick="adminPanel.toggleCampaignStatus('${campaign.id}')">
+                    <button class="btn-pause" onclick="toggleCampaignStatus('${campaign.id}')">
                         <i class="fas fa-pause"></i> ${statusClass === 'active' ? 'Pause' : 'Resume'}
                     </button>
-                    <button class="btn-complete" onclick="adminPanel.completeCampaign('${campaign.id}')">
+                    <button class="btn-complete" onclick="completeCampaign('${campaign.id}')">
                         <i class="fas fa-check"></i> Complete
                     </button>
                 </div>
@@ -266,7 +389,8 @@ class AdminPanel {
         const container = document.getElementById('success-stories-list');
         if (!container) return;
 
-        container.innerHTML = this.successStories.map(story => this.createSuccessStoryCard(story)).join('');
+        const successStories = this.successStories || [];
+        container.innerHTML = successStories.map(story => this.createSuccessStoryCard(story)).join('');
     }
 
     createSuccessStoryCard(story) {
@@ -285,10 +409,10 @@ class AdminPanel {
                     </div>
                 </div>
                 <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                    <button class="btn-edit" onclick="adminPanel.editSuccessStory('${story.id}')">
+                    <button class="btn-edit" onclick="editSuccessStory('${story.id}')">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button class="btn-pause" onclick="adminPanel.deleteSuccessStory('${story.id}')">
+                    <button class="btn-pause" onclick="deleteSuccessStory('${story.id}')">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </div>
@@ -300,20 +424,20 @@ class AdminPanel {
     handleAddCampaign(form) {
         const formData = new FormData(form);
         const campaignData = {};
-        
+
         // Extract form data
         for (let [key, value] of formData.entries()) {
             if (key !== 'image') {
                 campaignData[key] = value;
             }
         }
-        
+
         // Generate unique ID
         campaignData.id = this.generateId();
         campaignData.status = 'active';
         campaignData.createdDate = new Date().toISOString().split('T')[0];
         campaignData.lastUpdated = new Date().toISOString().split('T')[0];
-        
+
         // Structure patient details
         if (campaignData.patientName || campaignData.patientAge || campaignData.medicalCondition) {
             campaignData.patientDetails = {
@@ -322,18 +446,18 @@ class AdminPanel {
                 condition: campaignData.medicalCondition || '',
                 hospital: campaignData.hospital || ''
             };
-            
+
             // Clean up individual fields
             delete campaignData.patientName;
             delete campaignData.patientAge;
             delete campaignData.medicalCondition;
             delete campaignData.hospital;
         }
-        
+
         // Convert numeric fields
         campaignData.targetAmount = parseInt(campaignData.targetAmount) || 0;
         campaignData.raisedAmount = parseInt(campaignData.raisedAmount) || 0;
-        
+
         // Handle image (in real implementation, this would upload to server)
         const imageFile = form.querySelector('input[name="image"]').files[0];
         if (imageFile) {
@@ -341,69 +465,70 @@ class AdminPanel {
         } else {
             campaignData.image = 'assets/sevalog1crop.jpg'; // Default image
         }
-        
+
         console.log('Adding new campaign:', campaignData);
-        
+
         // Add to campaigns array
         this.campaigns.unshift(campaignData);
-        
+
         // In a real implementation, save to appropriate directory based on status
         this.saveCampaignToDirectory(campaignData, campaignData.status);
-        
-        // Update statistics
-        this.statistics.totalCampaigns = (this.statistics.totalCampaigns || 0) + 1;
-        this.statistics.activeCampaigns = (this.statistics.activeCampaigns || 0) + 1;
-        
+
+        // Update campaign counts
+        if (this.campaignCounts) {
+            this.campaignCounts.active += 1;
+            this.campaignCounts.total += 1;
+        }
+
         // Re-render
         this.renderCampaigns();
-        this.renderDashboard();
-        
+
         // Close modal and reset form
         this.closeModal('add-campaign-modal');
         form.reset();
-        
+
         this.showNotification('Campaign added successfully!', 'success');
     }
 
     handleAddSuccessStory(form) {
         const formData = new FormData(form);
         const storyData = {};
-        
+
         // Extract form data
         for (let [key, value] of formData.entries()) {
             if (key !== 'image') {
                 storyData[key] = value;
             }
         }
-        
+
         // Generate unique ID
         storyData.id = this.generateId();
-        
+
         // Convert numeric fields
         storyData.year = parseInt(storyData.year) || new Date().getFullYear();
         storyData.amountRaised = parseInt(storyData.amountRaised) || 0;
-        
+
         // Handle image
         const imageFile = form.querySelector('input[name="image"]').files[0];
         if (imageFile) {
             storyData.image = `assets/${imageFile.name}`;
         }
-        
+
         console.log('Adding new success story:', storyData);
-        
+
         // Add to success stories array
         this.successStories.unshift(storyData);
-        
+
         // In a real implementation, save to success-stories directory
         this.saveSuccessStoryToDirectory(storyData);
-        
+
         // Re-render
         this.renderSuccessStories();
-        
+
         // Close modal and reset form
         this.closeModal('add-story-modal');
         form.reset();
-        
+
         this.showNotification('Success story added!', 'success');
     }
 
@@ -413,11 +538,11 @@ class AdminPanel {
             this.showNotification('Campaign not found', 'error');
             return;
         }
-        
+
         // Pre-fill form with campaign data
         const form = document.getElementById('add-campaign-form');
         const modal = document.getElementById('add-campaign-modal');
-        
+
         // Fill form fields
         form.querySelector('[name="title"]').value = campaign.title || '';
         form.querySelector('[name="category"]').value = campaign.category || '';
@@ -426,31 +551,31 @@ class AdminPanel {
         form.querySelector('[name="targetAmount"]').value = campaign.targetAmount || '';
         form.querySelector('[name="raisedAmount"]').value = campaign.raisedAmount || '';
         form.querySelector('[name="urgency"]').value = campaign.urgency || 'medium';
-        
+
         if (campaign.patientDetails) {
             form.querySelector('[name="patientName"]').value = campaign.patientDetails.name || '';
             form.querySelector('[name="patientAge"]').value = campaign.patientDetails.age || '';
             form.querySelector('[name="medicalCondition"]').value = campaign.patientDetails.condition || '';
             form.querySelector('[name="hospital"]').value = campaign.patientDetails.hospital || '';
         }
-        
+
         // Change modal title and button text
         modal.querySelector('h2').textContent = 'Edit Campaign';
         modal.querySelector('button[type="submit"]').textContent = 'Update Campaign';
-        
+
         // Store editing campaign ID
         form.dataset.editingId = campaignId;
-        
+
         this.showModal('add-campaign-modal');
     }
 
     toggleCampaignStatus(campaignId) {
         const campaign = this.campaigns.find(c => c.id === campaignId);
         if (!campaign) return;
-        
+
         campaign.status = campaign.status === 'active' ? 'paused' : 'active';
         campaign.lastUpdated = new Date().toISOString().split('T')[0];
-        
+
         this.renderCampaigns();
         this.showNotification(`Campaign ${campaign.status}`, 'success');
     }
@@ -458,22 +583,36 @@ class AdminPanel {
     completeCampaign(campaignId) {
         const campaign = this.campaigns.find(c => c.id === campaignId);
         if (!campaign) return;
-        
+
         if (confirm('Mark this campaign as completed? This action cannot be undone.')) {
             const oldStatus = campaign.status;
             campaign.status = 'completed';
             campaign.raisedAmount = campaign.targetAmount; // Assume target was reached
             campaign.lastUpdated = new Date().toISOString().split('T')[0];
-            
+
             // In a real implementation, move campaign file from old status to completed directory
             this.moveCampaignBetweenDirectories(campaign, oldStatus, 'completed');
-            
-            // Update statistics
-            this.statistics.activeCampaigns = Math.max(0, (this.statistics.activeCampaigns || 0) - 1);
-            
+
+            // Update campaign counts
+            if (this.campaignCounts) {
+                this.campaignCounts.active = Math.max(0, this.campaignCounts.active - 1);
+                this.campaignCounts.ended += 1;
+            }
+
             this.renderCampaigns();
-            this.renderDashboard();
             this.showNotification('Campaign marked as completed', 'success');
+        }
+    }
+
+    // Reload campaign counts from manifest files
+    async reloadCampaignCounts() {
+        try {
+            this.campaignCounts = await this.loadCampaignCounts();
+            this.renderCampaignStats();
+            this.showNotification('Campaign statistics refreshed!', 'success');
+        } catch (error) {
+            console.error('Error reloading campaign counts:', error);
+            this.showNotification('Error refreshing statistics', 'error');
         }
     }
 
@@ -483,10 +622,13 @@ class AdminPanel {
         // to the appropriate directory (campaigns/active/, campaigns/completed/, etc.)
         console.log(`Would save campaign ${campaign.id} to campaigns/${directory}/`);
         console.log('Campaign data:', campaign);
-        
+
         // Note: Static file hosting doesn't allow writing files from JavaScript
         // This would require a backend API endpoint
         this.showNotification('Note: File saving requires backend API (not available in static hosting)', 'info');
+
+        // In a real implementation, after saving, we would reload the counts
+        // this.reloadCampaignCounts();
     }
 
     saveSuccessStoryToDirectory(story) {
@@ -494,7 +636,7 @@ class AdminPanel {
         // to the success-stories/ directory
         console.log(`Would save success story ${story.id} to success-stories/`);
         console.log('Story data:', story);
-        
+
         // Note: Static file hosting doesn't allow writing files from JavaScript
         this.showNotification('Note: File saving requires backend API (not available in static hosting)', 'info');
     }
@@ -502,7 +644,7 @@ class AdminPanel {
     moveCampaignBetweenDirectories(campaign, fromDirectory, toDirectory) {
         // In a real implementation, this would move the campaign file between directories
         console.log(`Would move campaign ${campaign.id} from ${fromDirectory} to ${toDirectory}`);
-        
+
         // This would involve:
         // 1. DELETE campaigns/${fromDirectory}/${campaign.id}.json
         // 2. POST campaigns/${toDirectory}/${campaign.id}.json with campaign data
@@ -514,11 +656,11 @@ class AdminPanel {
             this.showNotification('Success story not found', 'error');
             return;
         }
-        
+
         // Pre-fill form with story data
         const form = document.getElementById('add-story-form');
         const modal = document.getElementById('add-story-modal');
-        
+
         form.querySelector('[name="patientName"]').value = story.patientName || '';
         form.querySelector('[name="year"]').value = story.year || '';
         form.querySelector('[name="condition"]').value = story.condition || '';
@@ -527,14 +669,14 @@ class AdminPanel {
         form.querySelector('[name="hospital"]').value = story.hospital || '';
         form.querySelector('[name="outcome"]').value = story.outcome || '';
         form.querySelector('[name="description"]').value = story.description || '';
-        
+
         // Change modal title and button text
         modal.querySelector('h2').textContent = 'Edit Success Story';
         modal.querySelector('button[type="submit"]').textContent = 'Update Story';
-        
+
         // Store editing story ID
         form.dataset.editingId = storyId;
-        
+
         this.showModal('add-story-modal');
     }
 
@@ -554,10 +696,10 @@ class AdminPanel {
             generalEmail: document.getElementById('general-email').value,
             membershipEmail: document.getElementById('membership-email').value
         };
-        
+
         console.log('Saving content:', content);
         // In real implementation, this would save to backend
-        
+
         this.showNotification('Content saved successfully!', 'success');
     }
 
@@ -570,10 +712,10 @@ class AdminPanel {
             websiteTitle: document.getElementById('website-title').value,
             metaDescription: document.getElementById('meta-description').value
         };
-        
+
         console.log('Saving settings:', settings);
         // In real implementation, this would save to backend
-        
+
         this.showNotification('Settings saved successfully!', 'success');
     }
 
@@ -627,14 +769,14 @@ class AdminPanel {
                 ${message}
             </div>
         `;
-        
+
         document.body.appendChild(notification);
-        
+
         // Remove after 3 seconds
         setTimeout(() => {
             notification.remove();
         }, 3000);
-        
+
         // Add animation styles
         if (!document.querySelector('#notification-styles')) {
             const styles = document.createElement('style');
@@ -665,13 +807,13 @@ class AdminPanel {
         const modal = document.getElementById(modalId);
         modal.classList.remove('active');
         document.body.style.overflow = '';
-        
+
         // Reset forms
         const form = modal.querySelector('form');
         if (form) {
             form.reset();
             delete form.dataset.editingId;
-            
+
             // Reset modal title and button text
             if (modalId === 'add-campaign-modal') {
                 modal.querySelector('h2').textContent = 'Add New Campaign';
@@ -697,10 +839,10 @@ function showSection(sectionId) {
     document.querySelectorAll('.admin-section').forEach(section => {
         section.classList.remove('active');
     });
-    
+
     // Show target section
     document.getElementById(sectionId).classList.add('active');
-    
+
     // Update navigation
     document.querySelectorAll('.admin-nav button').forEach(btn => {
         btn.classList.remove('active');
@@ -709,29 +851,100 @@ function showSection(sectionId) {
 }
 
 function showAddCampaignModal() {
-    adminPanel.showModal('add-campaign-modal');
+    if (adminPanel) {
+        adminPanel.showModal('add-campaign-modal');
+    } else {
+        console.error('Admin panel not initialized');
+    }
 }
 
 function showAddStoryModal() {
-    adminPanel.showModal('add-story-modal');
+    if (adminPanel) {
+        adminPanel.showModal('add-story-modal');
+    } else {
+        console.error('Admin panel not initialized');
+    }
 }
 
 function closeModal(modalId) {
-    adminPanel.closeModal(modalId);
+    if (adminPanel) {
+        adminPanel.closeModal(modalId);
+    } else {
+        console.error('Admin panel not initialized');
+    }
 }
 
 function saveContent() {
-    adminPanel.saveContent();
+    if (adminPanel) {
+        adminPanel.saveContent();
+    } else {
+        console.error('Admin panel not initialized');
+    }
 }
 
 function saveSettings() {
-    adminPanel.saveSettings();
+    if (adminPanel) {
+        adminPanel.saveSettings();
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function reloadCampaignCounts() {
+    if (adminPanel) {
+        adminPanel.reloadCampaignCounts();
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function editSuccessStory(storyId) {
+    if (adminPanel) {
+        adminPanel.editSuccessStory(storyId);
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function deleteSuccessStory(storyId) {
+    if (adminPanel) {
+        adminPanel.deleteSuccessStory(storyId);
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function editCampaign(campaignId) {
+    if (adminPanel) {
+        adminPanel.editCampaign(campaignId);
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function toggleCampaignStatus(campaignId) {
+    if (adminPanel) {
+        adminPanel.toggleCampaignStatus(campaignId);
+    } else {
+        console.error('Admin panel not initialized');
+    }
+}
+
+function completeCampaign(campaignId) {
+    if (adminPanel) {
+        adminPanel.completeCampaign(campaignId);
+    } else {
+        console.error('Admin panel not initialized');
+    }
 }
 
 // Initialize admin panel when DOM is loaded
-let adminPanel;
-
 document.addEventListener('DOMContentLoaded', () => {
     adminPanel = new AdminPanel();
     console.log('Admin panel initialized');
+    console.log('Global functions available:', {
+        reloadCampaignCounts: typeof reloadCampaignCounts,
+        editCampaign: typeof editCampaign,
+        showAddCampaignModal: typeof showAddCampaignModal
+    });
 });

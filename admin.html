@@ -162,6 +162,21 @@
             background: #1e7e34;
         }
         
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -309,15 +324,28 @@
 <body>
     <div class="admin-container">
         <div class="admin-header">
-            <h1><i class="fas fa-cog"></i> Sevabrata Foundation Admin Panel</h1>
-            <p>Manage campaigns, success stories, and website content</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1><i class="fas fa-cog"></i> Sevabrata Foundation Admin Panel</h1>
+                    <p>Manage campaigns, success stories, and website content</p>
+                </div>
+                <button onclick="adminLogout()" style="
+                    background: rgba(255,255,255,0.2);
+                    color: white;
+                    border: 1px solid rgba(255,255,255,0.3);
+                    padding: 0.5rem 1rem;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                    transition: background 0.3s;
+                " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
         </div>
         
         <nav class="admin-nav">
-            <button onclick="showSection('dashboard')" class="active">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
-            </button>
-            <button onclick="showSection('campaigns')">
+            <button onclick="showSection('campaigns')" class="active">
                 <i class="fas fa-heart"></i> Campaigns
             </button>
             <button onclick="showSection('success-stories')">
@@ -331,51 +359,38 @@
             </button>
         </nav>
         
-        <!-- Dashboard Section -->
-        <section id="dashboard" class="admin-section active">
-            <h2>Dashboard Overview</h2>
+        <!-- Campaigns Section -->
+        <section id="campaigns" class="admin-section active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>Campaign Management</h2>
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="reloadCampaignCounts()" class="btn btn-secondary">
+                        <i class="fas fa-sync-alt"></i> Refresh Stats
+                    </button>
+                    <button onclick="showAddCampaignModal()" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add New Campaign
+                    </button>
+                </div>
+            </div>
             
-            <div class="stats-grid">
+            <!-- Campaign Statistics -->
+            <div class="stats-grid" style="margin-bottom: 2rem;">
                 <div class="stat-card">
-                    <span class="number" id="total-campaigns">48</span>
+                    <span class="number" id="total-campaigns">0</span>
                     <span class="label">Total Campaigns</span>
                 </div>
                 <div class="stat-card">
-                    <span class="number" id="active-campaigns">8</span>
+                    <span class="number" id="active-campaigns">0</span>
                     <span class="label">Active Campaigns</span>
                 </div>
                 <div class="stat-card">
-                    <span class="number" id="total-raised">₹1.25Cr</span>
+                    <span class="number" id="completed-campaigns">0</span>
+                    <span class="label">Completed Campaigns</span>
+                </div>
+                <div class="stat-card">
+                    <span class="number" id="total-raised">₹0</span>
                     <span class="label">Total Amount Raised</span>
                 </div>
-                <div class="stat-card">
-                    <span class="number" id="lives-impacted">156</span>
-                    <span class="label">Lives Impacted</span>
-                </div>
-                <div class="stat-card">
-                    <span class="number" id="success-rate">92%</span>
-                    <span class="label">Success Rate</span>
-                </div>
-            </div>
-            
-            <h3>Recent Activity</h3>
-            <div id="recent-activity">
-                <div class="campaign-admin-card">
-                    <h4>Recent Updates</h4>
-                    <p>• Palash Das campaign: Surgery scheduled for February 2024</p>
-                    <p>• Emergency Fund: Helped 3 families this month</p>
-                    <p>• Children's Heart Surgery Fund: Anjali's surgery successful</p>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Campaigns Section -->
-        <section id="campaigns" class="admin-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2>Campaign Management</h2>
-                <button onclick="showAddCampaignModal()" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Add New Campaign
-                </button>
             </div>
             
             <div id="campaigns-list" class="campaign-grid">
@@ -641,6 +656,7 @@
         </div>
     </div>
     
+    <script src="admin-auth.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

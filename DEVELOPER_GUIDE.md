@@ -228,12 +228,26 @@ The project includes an admin interface for UI-based campaign management:
 http://localhost:8000/admin.html
 ```
 
+**Admin Authentication**:
+The admin panel requires the `SEVABRATA_ADMIN_PASSWORD` environment variable to be set for local development:
+
+```bash
+# Start local server with admin access
+SEVABRATA_ADMIN_PASSWORD=your_password python3 -m http.server 8000
+```
+
+**Security Note**: 
+- The admin panel only works when the environment variable is set
+- For S3 deployment, simply exclude `admin.html` and `admin-auth.js` files
+- Without the environment variable, the admin panel will show a "disabled" message
+
 **Admin Features**:
 - Create new campaigns via web form
 - Edit existing campaign details
 - Generate JSON files directly from the interface
 - Preview campaign cards before publishing
 - Manage campaign status (active/ended/archived)
+- Campaign statistics display and refresh
 
 ### Modifying Campaign Display
 
@@ -375,6 +389,11 @@ python -m SimpleHTTPServer 8000
 2. **Enable static website hosting**
 3. **Set index.html as index document**
 4. **Configure CloudFront** for CDN (optional)
+
+**Admin Panel Security**:
+- **⚠️ Important**: Do not upload `admin.html` and `admin-auth.js` to production unless you have proper authentication
+- For S3 hosting, the admin panel will automatically be disabled (no password configured)
+- Only include admin files in development/staging environments
 
 **File Structure in S3**:
 ```
