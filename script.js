@@ -222,6 +222,7 @@ class SevabrataWebsite {
     async loadEndedCampaigns() {
         try {
             console.log('Starting to load ended campaigns...');
+            console.log('Current protocol:', window.location.protocol);
             
             // Check if we're running from file:// protocol (local file testing)
             if (window.location.protocol === 'file:') {
@@ -231,12 +232,20 @@ class SevabrataWebsite {
             }
             
             // Load ended campaigns from directory
+            console.log('Loading ended campaigns from campaigns/ended/ directory...');
             const endedCampaigns = await this.loadCampaignsFromDirectory('campaigns/ended/');
-            console.log('Ended campaigns loaded:', endedCampaigns);
+            console.log('Ended campaigns loaded successfully:', endedCampaigns);
+            console.log('Number of ended campaigns:', endedCampaigns.length);
             
-            this.renderCampaigns(endedCampaigns, 'completed');
+            if (endedCampaigns.length === 0) {
+                console.warn('No ended campaigns found, using fallback data');
+                this.renderCampaigns(this.getFallbackEndedCampaigns(), 'completed');
+            } else {
+                this.renderCampaigns(endedCampaigns, 'completed');
+            }
         } catch (error) {
             console.error('Error loading ended campaigns:', error);
+            console.log('Using fallback ended campaigns due to error');
             // Fallback to hardcoded campaigns if loading fails
             this.renderCampaigns(this.getFallbackEndedCampaigns(), 'completed');
         }
