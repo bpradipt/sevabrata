@@ -158,13 +158,11 @@ class AdminPanel {
     async loadCampaignCounts() {
         const counts = {
             active: 0,
-            ended: 0,
             completed: 0,
-            archived: 0,
             total: 0
         };
 
-        const directories = ['active', 'ended'];
+        const directories = ['active', 'completed'];
 
         for (const directory of directories) {
             try {
@@ -185,7 +183,7 @@ class AdminPanel {
 
     async loadAllCampaigns() {
         const campaigns = [];
-        const directories = ['active', 'completed', 'ended', 'archived'];
+        const directories = ['active', 'completed'];
 
         for (const directory of directories) {
             try {
@@ -275,9 +273,7 @@ class AdminPanel {
         this.successStories = [];
         this.campaignCounts = {
             active: 0,
-            ended: 0,
             completed: 0,
-            archived: 0,
             total: 0
         };
     }
@@ -305,10 +301,10 @@ class AdminPanel {
 
     renderCampaignStats() {
         // Use manifest-based counts for accurate statistics
-        const counts = this.campaignCounts || { active: 0, ended: 0, completed: 0, total: 0 };
+        const counts = this.campaignCounts || { active: 0, completed: 0, total: 0 };
 
-        // Calculate completed campaigns (ended + completed)
-        const completedCampaigns = counts.ended + counts.completed;
+        // Get completed campaigns count
+        const completedCampaigns = counts.completed;
 
         // Calculate total raised from loaded campaigns (only for display purposes)
         const totalRaised = (this.campaigns || []).reduce((sum, c) => sum + (c.raisedAmount || 0), 0);
@@ -596,7 +592,7 @@ class AdminPanel {
             // Update campaign counts
             if (this.campaignCounts) {
                 this.campaignCounts.active = Math.max(0, this.campaignCounts.active - 1);
-                this.campaignCounts.ended += 1;
+                this.campaignCounts.completed += 1;
             }
 
             this.renderCampaigns();
@@ -619,7 +615,7 @@ class AdminPanel {
     // Directory-based save methods (for real implementation)
     saveCampaignToDirectory(campaign, directory) {
         // In a real implementation, this would make an API call to save the campaign
-        // to the appropriate directory (campaigns/active/, campaigns/completed/, etc.)
+        // to the appropriate directory (campaigns/active/, campaigns/completed/)
         console.log(`Would save campaign ${campaign.id} to campaigns/${directory}/`);
         console.log('Campaign data:', campaign);
 

@@ -178,7 +178,7 @@ class SevabrataWebsite {
                 if (activeTab === 'active') {
                     this.loadCampaigns();
                 } else if (activeTab === 'completed') {
-                    this.loadEndedCampaigns();
+                    this.loadCompletedCampaigns();
                 }
             }
         });
@@ -221,9 +221,9 @@ class SevabrataWebsite {
         }
     }
 
-    async loadEndedCampaigns() {
+    async loadCompletedCampaigns() {
         try {
-            console.log('Starting to load ended campaigns...');
+            console.log('Starting to load completed campaigns...');
             console.log('Current protocol:', window.location.protocol);
             
             // Note: file:// protocol is not supported due to CORS restrictions
@@ -235,15 +235,15 @@ class SevabrataWebsite {
                 return;
             }
             
-            // Load ended campaigns from directory
-            console.log('Loading ended campaigns from campaigns/ended/ directory...');
-            const endedCampaigns = await this.loadCampaignsFromDirectory('campaigns/ended/');
-            console.log('Ended campaigns loaded successfully:', endedCampaigns);
-            console.log('Number of ended campaigns:', endedCampaigns.length);
+            // Load completed campaigns from directory
+            console.log('Loading completed campaigns from campaigns/completed/ directory...');
+            const completedCampaigns = await this.loadCampaignsFromDirectory('campaigns/completed/');
+            console.log('Completed campaigns loaded successfully:', completedCampaigns);
+            console.log('Number of completed campaigns:', completedCampaigns.length);
             
-            this.renderCampaigns(endedCampaigns, 'completed');
+            this.renderCampaigns(completedCampaigns, 'completed');
         } catch (error) {
-            console.error('Error loading ended campaigns:', error);
+            console.error('Error loading completed campaigns:', error);
             // Show empty state if loading fails
             this.renderCampaigns([], 'completed');
         }
@@ -504,7 +504,7 @@ class SevabrataWebsite {
             }
             
             // Try to find the campaign in different directories
-            const directories = ['active', 'completed', 'ended', 'archived'];
+            const directories = ['active', 'completed'];
             
             for (const directory of directories) {
                 try {

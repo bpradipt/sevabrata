@@ -59,8 +59,8 @@ sevabrata/
 │   ├── active/               # Active campaigns
 │   │   ├── manifest.json     # Lists active campaign files
 │   │   └── *.json           # Individual campaign files
-│   ├── ended/                # Completed campaigns
-│   │   ├── manifest.json     # Lists ended campaign files
+│   ├── completed/            # Completed campaigns
+│   │   ├── manifest.json     # Lists completed campaign files
 │   │   └── *.json           # Individual campaign files
 │   └── archived/             # Archived campaigns (future use)
 ├── success-stories/          # Success story data
@@ -74,7 +74,7 @@ sevabrata/
 ### Data Flow
 1. **Source of Truth**: `master_campaign_details.csv` contains all campaign information
 2. **JSON Generation**: CSV data is converted to individual JSON files
-3. **Directory Organization**: Campaigns are placed in `active/` or `ended/` directories
+3. **Directory Organization**: Campaigns are placed in `active/` or `completed/` directories
 4. **Manifest Files**: Each directory has a `manifest.json` listing available campaigns
 5. **Dynamic Loading**: JavaScript loads campaigns based on directory manifests
 
@@ -89,7 +89,7 @@ sevabrata/
   "targetAmount": 100000,
   "raisedAmount": 75000,
   "currency": "INR",
-  "status": "active|ended|archived",
+  "status": "active|completed",
   "urgency": "high|medium|low",
   "category": "medical",
   "patientDetails": {
@@ -150,7 +150,7 @@ sevabrata/
 **Campaign Loading:**
 ```javascript
 loadCampaigns()           // Loads active campaigns
-loadEndedCampaigns()      // Loads completed campaigns
+loadCompletedCampaigns()  // Loads completed campaigns
 loadCampaignsFromDirectory(dir) // Generic campaign loader
 ```
 
@@ -191,7 +191,7 @@ getCampaignDetails(campaignId)    // Loads individual campaign details
 
 1. **Add to CSV**: Update `master_campaign_details.csv` with new campaign data
 2. **Run Conversion Script**: Execute `python3 csv_to_json_converter.py` to generate JSON files
-3. **Verify JSON**: Check that the new JSON file is created in the appropriate directory (`active/` or `ended/`)
+3. **Verify JSON**: Check that the new JSON file is created in the appropriate directory (`active/` or `completed/`)
 4. **Update Manifest**: The conversion script automatically updates the `manifest.json` files
 
 ### CSV to JSON Conversion
@@ -215,7 +215,7 @@ python3 csv_to_json_converter.py
 **Script Features**:
 - Reads `master_campaign_details.csv`
 - Creates individual JSON files for each campaign
-- Organizes campaigns by status (active/ended)
+- Organizes campaigns by status (active/completed)
 - Updates manifest.json files automatically
 - Preserves existing campaign data when merging
 
@@ -246,7 +246,7 @@ SEVABRATA_ADMIN_PASSWORD=your_password python3 -m http.server 8000
 - Edit existing campaign details
 - Generate JSON files directly from the interface
 - Preview campaign cards before publishing
-- Manage campaign status (active/ended/archived)
+- Manage campaign status (active/completed)
 - Campaign statistics display and refresh
 
 ### Modifying Campaign Display
@@ -405,7 +405,7 @@ your-bucket/
 │   ├── active/
 │   │   ├── manifest.json
 │   │   └── *.json
-│   └── ended/
+│   └── completed/
 │       ├── manifest.json
 │       └── *.json
 └── assets/
