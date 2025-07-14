@@ -343,11 +343,30 @@ class SevabrataWebsite {
 
     async loadSuccessStories() {
         try {
-            // Load success stories from the success-stories directory
-            const knownStories = ['prakash-heart-surgery.json', 'poltu-heart-transplant.json'];
+            console.log('Loading success stories from directory...');
+            
+            // Note: file:// protocol is not supported due to CORS restrictions
+            if (window.location.protocol === 'file:') {
+                console.error('File protocol detected! Please use a web server for local development.');
+                console.error('Run: python3 -m http.server 8000');
+                this.renderSuccessStories([]);
+                return;
+            }
+            
+            // Load success stories using manifest file
+            const manifestResponse = await fetch('success-stories/manifest.json');
+            if (!manifestResponse.ok) {
+                console.error('Failed to load success stories manifest');
+                this.renderSuccessStories([]);
+                return;
+            }
+            
+            const manifest = await manifestResponse.json();
+            const storyFiles = manifest.stories || [];
             const successStories = [];
 
-            for (const filename of knownStories) {
+            // Load each story file listed in the manifest
+            for (const filename of storyFiles) {
                 try {
                     const response = await fetch(`success-stories/${filename}`);
                     if (response.ok) {
@@ -359,17 +378,64 @@ class SevabrataWebsite {
                 }
             }
 
+            console.log('Success stories loaded:', successStories);
             this.renderSuccessStories(successStories);
         } catch (error) {
             console.error('Error loading success stories:', error);
+            this.renderSuccessStories([]);
         }
     }
 
     renderSuccessStories(stories) {
-        // This method can be used to populate a success stories section if it exists
-        // For now, just store the stories for later use
+        const container = document.getElementById('success-stories-container');
+        if (!container) {
+            console.error('Success stories container not found!');
+            return;
+        }
+
+        console.log('Rendering success stories:', stories);
+        
+        if (stories.length === 0) {
+            container.innerHTML = '<div class="no-stories"><p>No success stories available at this time.</p></div>';
+            return;
+        }
+
+        // Store the stories for later use
         this.successStories = stories;
-        console.log('Success stories loaded:', stories);
+        
+        // Render story cards
+        container.innerHTML = stories.map(story => this.createSuccessStoryCard(story)).join('');
+    }
+
+    createSuccessStoryCard(story) {
+        // Format the amount raised
+        const amountRaised = story.amountRaised ? this.formatAmount(story.amountRaised) : 'Amount not specified';
+        
+        // Create story subtitle with treatment and year
+        const subtitle = `${story.treatment} - ${story.year}`;
+        
+        // Truncate description for card display
+        const truncatedDescription = story.description.length > 150 
+            ? story.description.substring(0, 150) + '...' 
+            : story.description;
+        
+        return `
+            <div class="story-card" data-story-id="${story.id}">
+                <div class="story-image">
+                    <img src="${story.image}" alt="${story.patientName}" onerror="this.src='assets/sevalog1crop.jpg'">
+                </div>
+                <div class="story-content">
+                    <h3>${story.patientName}</h3>
+                    <p class="story-subtitle">${subtitle}</p>
+                    <p>${truncatedDescription}</p>
+                    <div class="story-stats">
+                        <span class="stat">₹${amountRaised}</span>
+                        <span class="stat">${story.treatment}</span>
+                        <span class="stat">${story.year}</span>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     renderCampaigns(campaigns, type = 'active') {

@@ -231,18 +231,32 @@ class AdminPanel {
 
     async loadSuccessStories() {
         const stories = [];
-        const knownFiles = ['prakash-heart-surgery.json', 'poltu-heart-transplant.json'];
-
-        for (const filename of knownFiles) {
-            try {
-                const response = await fetch(`success-stories/${filename}`);
-                if (response.ok) {
-                    const story = await response.json();
-                    stories.push(story);
-                }
-            } catch (error) {
-                console.error(`Error loading success story ${filename}:`, error);
+        
+        try {
+            // Load success stories using manifest file
+            const manifestResponse = await fetch('success-stories/manifest.json');
+            if (!manifestResponse.ok) {
+                console.error('Failed to load success stories manifest');
+                return stories;
             }
+            
+            const manifest = await manifestResponse.json();
+            const storyFiles = manifest.stories || [];
+
+            // Load each story file listed in the manifest
+            for (const filename of storyFiles) {
+                try {
+                    const response = await fetch(`success-stories/${filename}`);
+                    if (response.ok) {
+                        const story = await response.json();
+                        stories.push(story);
+                    }
+                } catch (error) {
+                    console.error(`Error loading success story ${filename}:`, error);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading success stories:', error);
         }
 
         return stories;

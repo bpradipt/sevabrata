@@ -64,6 +64,7 @@ sevabrata/
 │   │   └── *.json           # Individual campaign files
 │   └── archived/             # Archived campaigns (future use)
 ├── success-stories/          # Success story data
+│   ├── manifest.json        # Lists available success stories
 │   └── *.json               # Individual success stories
 ├── legacy/                   # Old website files (for reference)
 └── admin.html               # Admin panel (future enhancement)
@@ -113,12 +114,41 @@ sevabrata/
 }
 ```
 
+### Success Story JSON Structure
+```json
+{
+  "id": "success-story-identifier",
+  "patientName": "Patient Name",
+  "condition": "Medical condition",
+  "treatment": "Treatment received",
+  "amountRaised": 250000,
+  "year": 2024,
+  "hospital": "Hospital Name",
+  "outcome": "Treatment outcome",
+  "image": "path/to/image.jpg",
+  "description": "Detailed success story narrative..."
+}
+```
+
 ### Manifest File Structure
+
+**Campaign Manifest** (`campaigns/active/manifest.json`, `campaigns/completed/manifest.json`):
 ```json
 {
   "campaigns": [
     "campaign1.json",
     "campaign2.json"
+  ],
+  "lastUpdated": "2025-07-14T10:30:00Z"
+}
+```
+
+**Success Stories Manifest** (`success-stories/manifest.json`):
+```json
+{
+  "stories": [
+    "story1.json",
+    "story2.json"
   ],
   "lastUpdated": "2025-07-14T10:30:00Z"
 }
@@ -151,13 +181,16 @@ sevabrata/
 ```javascript
 loadCampaigns()           // Loads active campaigns
 loadCompletedCampaigns()  // Loads completed campaigns
+loadSuccessStories()      // Loads success stories from manifest
 loadCampaignsFromDirectory(dir) // Generic campaign loader
 ```
 
 **Rendering:**
 ```javascript
 renderCampaigns(campaigns, type) // Renders campaign cards
+renderSuccessStories(stories) // Renders success story cards
 createCampaignCard(campaign, type) // Creates individual card HTML
+createSuccessStoryCard(story) // Creates success story card HTML
 createCampaignModal(details) // Creates detailed modal popup
 ```
 
