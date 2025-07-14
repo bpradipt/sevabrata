@@ -12,6 +12,7 @@ class SevabrataWebsite {
         this.setupSmoothScrolling();
         this.setupIntersectionObserver();
         this.setupMobileMenu();
+        this.setupCampaignTabs();
     }
 
     // Navigation functionality
@@ -161,6 +162,28 @@ class SevabrataWebsite {
         });
     }
 
+    // Campaign tabs functionality
+    setupCampaignTabs() {
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('.tab-button')) {
+                const activeTab = e.target.dataset.tab;
+                
+                // Update active tab
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                
+                // Load campaigns based on tab
+                if (activeTab === 'active') {
+                    this.loadCampaigns();
+                } else if (activeTab === 'completed') {
+                    this.loadEndedCampaigns();
+                }
+            }
+        });
+    }
+
     // Campaign management system
     async loadCampaigns() {
         try {
@@ -196,6 +219,29 @@ class SevabrataWebsite {
         }
     }
 
+    async loadEndedCampaigns() {
+        try {
+            console.log('Starting to load ended campaigns...');
+            
+            // Check if we're running from file:// protocol (local file testing)
+            if (window.location.protocol === 'file:') {
+                console.log('File protocol detected, using hardcoded ended campaign data');
+                this.renderCampaigns(this.getFallbackEndedCampaigns(), 'completed');
+                return;
+            }
+            
+            // Load ended campaigns from directory
+            const endedCampaigns = await this.loadCampaignsFromDirectory('campaigns/ended/');
+            console.log('Ended campaigns loaded:', endedCampaigns);
+            
+            this.renderCampaigns(endedCampaigns, 'completed');
+        } catch (error) {
+            console.error('Error loading ended campaigns:', error);
+            // Fallback to hardcoded campaigns if loading fails
+            this.renderCampaigns(this.getFallbackEndedCampaigns(), 'completed');
+        }
+    }
+
     async loadActiveCampaigns() {
         try {
             console.log('Loading active campaigns from directory...');
@@ -228,10 +274,7 @@ class SevabrataWebsite {
                     const response = await fetch(`${directory}${filename}`);
                     if (response.ok) {
                         const campaign = await response.json();
-                        // Only include if status is active
-                        if (campaign.status === 'active') {
-                            campaigns.push(this.transformCampaignData(campaign));
-                        }
+                        campaigns.push(this.transformCampaignData(campaign));
                     }
                 } catch (error) {
                     console.error(`Error loading campaign ${filename}:`, error);
@@ -322,66 +365,92 @@ class SevabrataWebsite {
         console.log('Success stories loaded:', stories);
     }
 
-    renderCampaigns(campaigns) {
+    renderCampaigns(campaigns, type = 'active') {
         const container = document.getElementById('campaigns-container');
         if (!container) {
             console.error('Campaigns container not found!');
             return;
         }
 
-        console.log('Rendering campaigns:', campaigns);
+        console.log('Rendering campaigns:', campaigns, 'Type:', type);
         
         if (campaigns.length === 0) {
-            container.innerHTML = '<div class="no-campaigns"><p>No active campaigns found.</p></div>';
+            const message = type === 'completed' ? 'No completed campaigns found.' : 'No active campaigns found.';
+            container.innerHTML = `<div class="no-campaigns"><p>${message}</p></div>`;
             return;
         }
 
-        container.innerHTML = campaigns.map(campaign => this.createCampaignCard(campaign)).join('');
+        container.innerHTML = campaigns.map(campaign => this.createCampaignCard(campaign, type)).join('');
         
         // Add event listeners to campaign cards
         this.setupCampaignInteractions();
     }
 
-    createCampaignCard(campaign) {
+    createCampaignCard(campaign, type = 'active') {
         const progressPercentage = Math.round((campaign.raisedAmount / campaign.targetAmount) * 100);
         const urgencyClass = campaign.urgency === 'high' ? 'urgent' : '';
+        const completedClass = type === 'completed' ? 'completed' : '';
+        const isCompleted = type === 'completed';
+        const goalExceeded = progressPercentage >= 100;
+        
+        // Success badge for completed campaigns
+        const successBadge = isCompleted ? 
+            `<span class="success-badge ${goalExceeded ? 'goal-exceeded' : ''}">${goalExceeded ? 'Goal Exceeded' : 'Completed'}</span>` : '';
+        
+        // Different actions for completed vs active campaigns
+        const campaignActions = isCompleted ? 
+            `<div class="campaign-actions">
+                <button class="btn btn-secondary campaign-details-btn" data-campaign-id="${campaign.id}">
+                    View Details
+                </button>
+            </div>` :
+            `<div class="campaign-actions">
+                <a href="#contribute" class="btn btn-primary campaign-donate-btn">Donate Now</a>
+                <button class="btn btn-secondary campaign-details-btn" data-campaign-id="${campaign.id}">
+                    Learn More
+                </button>
+            </div>`;
+        
+        // Progress text for completed campaigns
+        const progressText = isCompleted ?
+            `<div class="progress-text">
+                <span>₹${this.formatAmount(campaign.raisedAmount)} raised of ₹${this.formatAmount(campaign.targetAmount)}</span>
+                <span>${progressPercentage}%</span>
+            </div>` :
+            `<div class="progress-text">
+                <span>₹${this.formatAmount(campaign.raisedAmount)} raised</span>
+                <span>${progressPercentage}%</span>
+            </div>
+            <div class="progress-text">
+                <span>Goal: ₹${this.formatAmount(campaign.targetAmount)}</span>
+                <span>₹${this.formatAmount(Math.max(0, campaign.targetAmount - campaign.raisedAmount))} needed</span>
+            </div>`;
         
         return `
-            <div class="campaign-card ${urgencyClass}" data-campaign-id="${campaign.id}">
+            <div class="campaign-card ${urgencyClass} ${completedClass}" data-campaign-id="${campaign.id}">
                 <img src="${campaign.image}" alt="${campaign.title}" class="campaign-image" onerror="this.src='assets/sevalog1crop.jpg'">
                 <div class="campaign-content">
-                    <h3 class="campaign-title">${campaign.title}</h3>
+                    <h3 class="campaign-title">${campaign.title}${successBadge}</h3>
                     <p class="campaign-description">${campaign.description}</p>
                     
                     <div class="campaign-progress">
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${progressPercentage}%"></div>
+                            <div class="progress-fill" style="width: ${Math.min(progressPercentage, 100)}%"></div>
                         </div>
-                        <div class="progress-text">
-                            <span>₹${this.formatAmount(campaign.raisedAmount)} raised</span>
-                            <span>${progressPercentage}%</span>
-                        </div>
-                        <div class="progress-text">
-                            <span>Goal: ₹${this.formatAmount(campaign.targetAmount)}</span>
-                            <span>₹${this.formatAmount(campaign.targetAmount - campaign.raisedAmount)} needed</span>
-                        </div>
+                        ${progressText}
                     </div>
                     
                     <div class="campaign-stats">
-                        ${campaign.urgency === 'high' ? '<span class="stat urgent-stat">Urgent</span>' : ''}
+                        ${campaign.urgency === 'high' && !isCompleted ? '<span class="stat urgent-stat">Urgent</span>' : ''}
                         ${campaign.medicalCondition ? `<span class="stat">${campaign.medicalCondition}</span>` : ''}
                         ${campaign.patientAge ? `<span class="stat">Age ${campaign.patientAge}</span>` : ''}
+                        ${isCompleted ? `<span class="stat">Completed ${this.formatDate(campaign.lastUpdated)}</span>` : ''}
                     </div>
                     
-                    <div class="campaign-actions">
-                        <a href="#contribute" class="btn btn-primary campaign-donate-btn">Donate Now</a>
-                        <button class="btn btn-secondary campaign-details-btn" data-campaign-id="${campaign.id}">
-                            Learn More
-                        </button>
-                    </div>
+                    ${campaignActions}
                     
                     <div class="campaign-meta">
-                        <small>Last updated: ${this.formatDate(campaign.lastUpdated)}</small>
+                        <small>${isCompleted ? 'Completed:' : 'Last updated:'} ${this.formatDate(campaign.lastUpdated)}</small>
                     </div>
                 </div>
             </div>
@@ -479,6 +548,105 @@ class SevabrataWebsite {
                     location: "West Bengal, India",
                     condition: "Throat cancer",
                     hospital: "Mednipur Medical College"
+                }
+            },
+            "palash-das-kidney-transplant": {
+                title: "Palash Das - Kidney Transplant",
+                fullStory: "Palash Das, a 28-year-old from rural West Bengal, was suffering from chronic kidney disease for the past two years. Despite his family's best efforts, they could not afford the expensive treatment required for a kidney transplant.\n\nPalash was the sole breadwinner for his family of four, but his deteriorating health made it impossible for him to work. The family had exhausted their savings and borrowed money from relatives.\n\nThe doctors at Apollo Hospital, Kolkata, confirmed that Palash urgently needed a kidney transplant to save his life. The total cost of the surgery and post-operative care was estimated at ₹5,00,000.\n\nThrough the generous support of our community, we were able to raise ₹1,25,000 towards Palash's treatment. While we didn't reach the full goal, the funds helped cover essential pre-operative care and medications that significantly improved his condition.",
+                timeline: [
+                    {
+                        date: "2023-12-01",
+                        event: "Initial diagnosis confirmed",
+                        description: "Chronic kidney disease Stage 5 diagnosed"
+                    },
+                    {
+                        date: "2023-12-15",
+                        event: "Campaign launched",
+                        description: "Fundraising campaign started on Sevabrata Foundation"
+                    },
+                    {
+                        date: "2024-01-05",
+                        event: "Suitable donor identified",
+                        description: "Compatible kidney donor found within family"
+                    },
+                    {
+                        date: "2024-01-15",
+                        event: "Campaign completed",
+                        description: "Kidney transplant surgery scheduled for February 2024"
+                    }
+                ],
+                patientDetails: {
+                    name: "Palash Das",
+                    age: "28",
+                    location: "West Bengal, India",
+                    condition: "Chronic Kidney Disease",
+                    hospital: "Apollo Hospital, Kolkata"
+                }
+            },
+            "ananta-das-adhikari-eye-surgery": {
+                title: "Ananta Das Adhikari - Eye Surgery",
+                fullStory: "Ananta Das Adhikari, just 3 years old, met with an unfortunate accident while playing in the evening. He hurt his right eye, and his family from Dyaora village, Paschim Medinipur, needed help to fund his urgent eye surgery.\n\nAnanta's father is a farmer and the sole breadwinner of the family, which includes his parents, wife, and Ananta. With a monthly income of just ₹5,000 from labor and farming, the family was struggling to arrange funds for the surgery.\n\nThanks to the overwhelming response from our community, we not only met but exceeded our fundraising goal. After thorough medical investigation, doctors found that the eye injuries were healing naturally. Instead of surgery, Ananta received medication treatment, and his vision gradually improved. The excess funds helped cover all medical expenses and follow-up care.",
+                timeline: [
+                    {
+                        date: "2025-06-02",
+                        event: "Campaign launched",
+                        description: "Emergency fundraising campaign started"
+                    },
+                    {
+                        date: "2025-06-02",
+                        event: "Medical evaluation",
+                        description: "Surgery postponed as natural healing observed"
+                    },
+                    {
+                        date: "2025-06-07",
+                        event: "Treatment update",
+                        description: "Medication prescribed instead of surgery"
+                    },
+                    {
+                        date: "2025-06-10",
+                        event: "Recovery progress",
+                        description: "Vision improvement noted, campaign successful"
+                    }
+                ],
+                patientDetails: {
+                    name: "Ananta Das Adhikari",
+                    age: "3",
+                    location: "West Bengal, India",
+                    condition: "Right eye injury (accident)",
+                    hospital: "Sankara Nethralaya, Kolkata"
+                }
+            },
+            "deepa-madapatna-leg-fracture": {
+                title: "Deepa Madapatna - Leg Fracture",
+                fullStory: "Deepa, an 11-year-old girl studying in 5th standard and residing in Madapatna near Anekal, met with an accident on 4th January while playing. She tried to jump to the next building and fell down, fracturing her legs and arms.\n\nHer mother took her to Oxford hospital for first aid and then to Victoria Hospital in Bengaluru. Doctors operated and put rods for the leg and clips for the arm, to be removed after 6 months.\n\nThe family had spent up to Rs 90,000 for treatment with a household income of only Rs 30,000 per month. They had pledged jewelry and taken loans. Through our community's generous support, we successfully raised ₹60,200, slightly exceeding our goal of ₹60,000. This covered all remaining medical expenses and follow-up care for Deepa's complete recovery.",
+                timeline: [
+                    {
+                        date: "2025-01-04",
+                        event: "Accident occurred",
+                        description: "Deepa fell and sustained fractures"
+                    },
+                    {
+                        date: "2025-01-05",
+                        event: "Surgery completed",
+                        description: "Rods and clips placed at Victoria Hospital"
+                    },
+                    {
+                        date: "2025-02-15",
+                        event: "Campaign launched",
+                        description: "Fundraising for ongoing treatment costs"
+                    },
+                    {
+                        date: "2025-02-15",
+                        event: "Goal achieved",
+                        description: "Successfully raised funds for recovery"
+                    }
+                ],
+                patientDetails: {
+                    name: "Deepa Madapatna",
+                    age: "11",
+                    location: "Anekal, Karnataka",
+                    condition: "Leg and arm fractures",
+                    hospital: "Victoria Hospital, Bengaluru"
                 }
             }
         };
@@ -689,6 +857,60 @@ class SevabrataWebsite {
         ];
     }
 
+    // Fallback ended campaign data for local file testing
+    getFallbackEndedCampaigns() {
+        return [
+            {
+                id: "palash-das-kidney-transplant",
+                title: "Palash Das - Kidney Transplant",
+                description: "Young Palash needed urgent kidney transplant surgery",
+                fullDescription: "Palash Das, a 28-year-old from rural West Bengal, was suffering from chronic kidney disease for the past two years. Despite his family's best efforts, they could not afford the expensive treatment required for a kidney transplant.\n\nPalash was the sole breadwinner for his family of four, but his deteriorating health made it impossible for him to work. The family had exhausted their savings and borrowed money from relatives.\n\nThe doctors at Apollo Hospital, Kolkata, confirmed that Palash urgently needed a kidney transplant to save his life. The total cost of the surgery and post-operative care was estimated at ₹5,00,000.\n\nEvery contribution brought us closer to saving Palash's life. Your generosity gave him a second chance at life and helped his family during their difficult time.",
+                image: "",
+                targetAmount: 500000,
+                raisedAmount: 125000,
+                status: "ended",
+                urgency: "high",
+                patientAge: "28",
+                medicalCondition: "Chronic Kidney Disease",
+                hospital: "Apollo Hospital, Kolkata",
+                lastUpdated: "2024-01-15",
+                category: "medical"
+            },
+            {
+                id: "ananta-das-adhikari-eye-surgery",
+                title: "Ananta Das Adhikari - Eye Surgery",
+                description: "3-year-old Ananta needed urgent eye surgery after an accident",
+                fullDescription: "Ananta Das Adhikari, just 3 years old, met with an unfortunate accident while playing in the evening. He hurt his right eye, and his family from Dyaora village, Paschim Medinipur, needed help to fund his urgent eye surgery.\n\nAnanta's father is a farmer and the sole breadwinner of the family, which includes his parents, wife, and Ananta. With a monthly income of just ₹5,000 from labor and farming, the family was struggling to arrange funds for the surgery.\n\nAfter a thorough investigation under anaesthesia, doctors found that potential holes in the eye were healing, and prescribed medication instead. The white layer on his retina gradually reduced, and Ananta began to see through the affected eye again.",
+                image: "",
+                targetAmount: 60000,
+                raisedAmount: 93802,
+                status: "ended",
+                urgency: "high",
+                patientAge: "3",
+                medicalCondition: "Right eye injury (accident)",
+                hospital: "Sankara Nethralaya, Kolkata",
+                lastUpdated: "2025-06-10",
+                category: "medical"
+            },
+            {
+                id: "deepa-madapatna-leg-fracture",
+                title: "Deepa Madapatna - Leg Fracture",
+                description: "11-year-old Deepa needed support for leg fracture treatment",
+                fullDescription: "Deepa, an 11-year-old girl studying in 5th standard and residing in Madapatna near Anekal, met with an accident on 4th January while playing. She tried to jump to the next building and fell down, fracturing her legs and arms.\n\nHer mother took her to Oxford hospital for first aid and then to Victoria Hospital in Bengaluru. Doctors operated and put rods for the leg and clips for the arm, to be removed after 6 months.\n\nThe family had spent up to Rs 90,000 for treatment with a household income of only Rs 30,000 per month. They had pledged jewelry and taken loans. The campaign successfully raised funds for her ongoing treatment and recovery.",
+                image: "",
+                targetAmount: 60000,
+                raisedAmount: 60200,
+                status: "ended",
+                urgency: "medium",
+                patientAge: "11",
+                medicalCondition: "Leg and arm fractures",
+                hospital: "Victoria Hospital, Bengaluru",
+                lastUpdated: "2025-02-15",
+                category: "medical"
+            }
+        ];
+    }
+
     // Public API for external campaign management
     addCampaign(campaign) {
         // This would integrate with a backend API in a real implementation
@@ -830,6 +1052,36 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add some additional CSS for campaign cards
     const additionalStyles = `
         <style>
+            .campaigns-tabs {
+                display: flex;
+                gap: 0;
+                margin-bottom: 2rem;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            
+            .tab-button {
+                background: none;
+                border: none;
+                padding: 1rem 2rem;
+                font-size: 1rem;
+                cursor: pointer;
+                border-bottom: 3px solid transparent;
+                transition: all 0.3s ease;
+                color: #666;
+                font-weight: 500;
+            }
+            
+            .tab-button:hover {
+                color: var(--primary-color);
+                background-color: rgba(255, 107, 53, 0.05);
+            }
+            
+            .tab-button.active {
+                color: var(--primary-color);
+                border-bottom-color: var(--primary-color);
+                background-color: rgba(255, 107, 53, 0.1);
+            }
+            
             .campaign-actions {
                 display: flex;
                 gap: 1rem;
@@ -854,6 +1106,26 @@ document.addEventListener('DOMContentLoaded', () => {
             
             .campaign-card.urgent {
                 border-left: 4px solid #dc3545;
+            }
+            
+            .campaign-card.completed {
+                border-left: 4px solid #28a745;
+                opacity: 0.95;
+            }
+            
+            .success-badge {
+                background-color: #28a745;
+                color: white;
+                padding: 0.25rem 0.5rem;
+                border-radius: 4px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                margin-left: 0.5rem;
+            }
+            
+            .goal-exceeded {
+                background-color: #17a2b8;
             }
             
             .campaign-timeline {
