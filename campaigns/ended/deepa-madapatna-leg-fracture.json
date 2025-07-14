@@ -2,7 +2,7 @@
   "id": "deepa-madapatna-leg-fracture",
   "title": "Deepa Madapatna - Leg Fracture",
   "shortDescription": "11-year-old Deepa needs support for ongoing treatment after serious leg fracture",
-  "fullDescription": "Deepa - 11 year old girl studying in 5th standard and residing in Madapatna near Anekal, on 4th January, just after new year on a weekend while playing in 4th floor with other kids in the opposite house to their rented house, she tried to jump to next building which was few feet away and fall down the passage between two buildings to the ground floor, got her legs and arms fractured while she was using them during the fall. Her mother later taken her to Oxford hospital near Hosur Road for first aid and then to the Victoria Hospital in Bengaluru. In Victoria hospital doctors operated and have put the rods for the leg and clips for the arm and it will be removed after 6 months. So far they have spent upto Rs 90000 for the treatment and total house hold income being within Rs 30000 per month they have already pledged jewellery and made all the loans possible. For the treatment going forward for the next 6 months they need to make visits to the hospital every 2 weeks once and each visit the expense may go upto Rs. 5000-00 for tests, dressing as necessary and medicine. Total expense may go up to 60,000-00 with these expenses for next 6 months. All is well unless there is no puss formation in the areas surgeries are performed. The rods and clips will be removed after 6 months post assessment.\n\nHer father is working as a security guard and mother is working in garments factory. She also have a brother who started working as a courier boy after his 10th. They spent more than Rs 90000 (the amounts mentioned in receipts are less than what is being paid as her most treatment happened in the government hospital) for her care for more than a month by making loans.",
+  "fullDescription": "Deepa - 11 year old girl studying in 5th standard and residing in Madapatna near Anekal, on 4th January, just after new year on a weekend while playing in 4th floor with other kids in the opposite house to thier rented house, she tried to jump to next building which was few feets away and fall down the passage between two buildings to the ground floor, got her legs and arms fractured while she was using them during the fall. Her mother later taken her to Oxford hospital near Hosur Road for first aid and then to the Victoria Hospital in Bengaluru. In Victoria hospital doctors operated and have put the rods for the leg and clips for the arm and it will be removed after 6 months. So far they have spent upto Rs 90000 for the treatment and total house hold income being within Rs 30000 per month they have already pledged jewellery and made all the loans possible. For the treatment going forward for the next 6 months they need to make visits to the hospital every 2 weeks once and each visit the expense may go upto Rs. 5000-00 for tests, dressing as necessary and medicine. Total expense may go up to 60,000-00 with these expenses for next 6 months. All is well unless there is no puss formation in the areas surgeries are performed. The rods and clips will be removed after 6 months post assessment.\n\nHer father is working as a security guard and mother is working in garments factory. She also have a brother who started working as a courier boy after his 10th. They spent more than Rs 90000 (the amounts mentioned in receipts are less than what is being paid as her most treatment happened in the government hospital) for her care for more than a month by making loans.",
   "image": "",
   "targetAmount": 60000,
   "raisedAmount": 60200,
@@ -28,9 +28,10 @@
   "createdDate": "2025-02-15",
   "lastUpdated": "2025-02-15",
   "tags": [
-    "pediatric",
-    "fracture",
     "accident",
-    "orthopedic"
+    "fracture",
+    "medical",
+    "orthopedic",
+    "pediatric"
   ]
 }

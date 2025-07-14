@@ -14,6 +14,21 @@
 
 The Sevabrata Foundation website is a static website built with vanilla HTML, CSS, and JavaScript. It features a dynamic campaign management system that supports both active and completed fundraising campaigns.
 
+## Quick Start
+
+```bash
+# Clone or download the project
+cd sevabrata
+
+# Start local development server (REQUIRED)
+python3 -m http.server 8000
+
+# Open in browser
+# Visit: http://localhost:8000
+```
+
+**Important**: A web server is required for local development due to browser CORS restrictions with JSON file loading.
+
 ### Key Features
 - **Responsive Design**: Works on desktop, tablet, and mobile
 - **Campaign Management**: Dynamic loading of active and completed campaigns
@@ -152,25 +167,73 @@ setupCampaignTabs()       // Handles tab switching
 setupNavigation()         // Main site navigation
 ```
 
-### Fallback System
+### Data Loading System
 
-The website includes a robust fallback system for local development:
+The website loads all campaign data from JSON files using fetch() API:
 
 ```javascript
-// For file:// protocol (opening HTML directly)
-getFallbackCampaigns()        // Hardcoded active campaigns
-getFallbackEndedCampaigns()   // Hardcoded ended campaigns
-getFallbackCampaignDetails()  // Hardcoded campaign details
+// Campaign loading methods
+loadCampaigns()                    // Loads active campaigns from JSON
+loadEndedCampaigns()              // Loads completed campaigns from JSON
+loadCampaignsFromDirectory(dir)   // Generic JSON loader for any directory
+getCampaignDetails(campaignId)    // Loads individual campaign details
 ```
+
+**Requirements**:
+- ✅ **HTTP/HTTPS protocols** (web server required for local development)
+- ❌ **file:// protocol** (not supported due to CORS restrictions)
+
+**Protocol Detection**: The website detects file:// protocol and shows helpful error messages directing users to use a web server.
 
 ## Common Development Tasks
 
 ### Adding a New Campaign
 
 1. **Add to CSV**: Update `master_campaign_details.csv` with new campaign data
-2. **Create JSON**: Generate JSON file in appropriate directory (`active/` or `ended/`)
-3. **Update Manifest**: Add filename to relevant `manifest.json`
-4. **Update Fallbacks**: Add to fallback data in `script.js` for local testing
+2. **Run Conversion Script**: Execute `python3 csv_to_json_converter.py` to generate JSON files
+3. **Verify JSON**: Check that the new JSON file is created in the appropriate directory (`active/` or `ended/`)
+4. **Update Manifest**: The conversion script automatically updates the `manifest.json` files
+
+### CSV to JSON Conversion
+
+The website includes a Python script that converts CSV data to JSON files while preserving existing campaign data:
+
+```bash
+# Convert CSV to JSON files
+python3 csv_to_json_converter.py
+
+# Or use the bash wrapper
+./convert_campaigns.sh
+```
+
+**Important**: The script merges CSV data with existing JSON data rather than overwriting it. This preserves:
+- Timeline entries
+- Patient details
+- Rich descriptions
+- Tags and metadata
+
+**Script Features**:
+- Reads `master_campaign_details.csv`
+- Creates individual JSON files for each campaign
+- Organizes campaigns by status (active/ended)
+- Updates manifest.json files automatically
+- Preserves existing campaign data when merging
+
+### Admin Interface (admin.js)
+
+The project includes an admin interface for UI-based campaign management:
+
+```bash
+# Access admin interface
+http://localhost:8000/admin.html
+```
+
+**Admin Features**:
+- Create new campaigns via web form
+- Edit existing campaign details
+- Generate JSON files directly from the interface
+- Preview campaign cards before publishing
+- Manage campaign status (active/ended/archived)
 
 ### Modifying Campaign Display
 
@@ -279,55 +342,99 @@ modal.innerHTML = `
 
 ### Local Development
 
-1. **Direct File Access**: Open `index.html` in browser
-   - Uses fallback data
-   - Good for quick testing
+**⚠️ Important**: Local development requires a web server due to browser CORS restrictions with the `file://` protocol.
 
-2. **Local Server** (Recommended):
-   ```bash
-   cd sevabrata
-   python3 -m http.server 8000
-   # Visit: http://localhost:8000
-   ```
+**Web Server (Required for Local Development)**:
+```bash
+cd sevabrata
+python3 -m http.server 8000
+# Visit: http://localhost:8000
+```
+
+**Alternative Web Servers**:
+```bash
+# Using Node.js
+npx http-server -p 8000
+
+# Using PHP
+php -S localhost:8000
+
+# Using Python 2
+python -m SimpleHTTPServer 8000
+```
+
+**Note**: Opening `index.html` directly in the browser (file:// protocol) will not work because browsers block fetch requests to local JSON files for security reasons.
 
 ### Production Deployment
 
 #### S3 Static Hosting (Recommended)
 
-1. **Upload all files** to S3 bucket
+✅ **Fully Compatible** - All JSON files are served as static assets
+
+1. **Upload all files** to S3 bucket (including campaigns/ directory)
 2. **Enable static website hosting**
 3. **Set index.html as index document**
 4. **Configure CloudFront** for CDN (optional)
 
+**File Structure in S3**:
+```
+your-bucket/
+├── index.html
+├── styles.css
+├── script.js
+├── campaigns/
+│   ├── active/
+│   │   ├── manifest.json
+│   │   └── *.json
+│   └── ended/
+│       ├── manifest.json
+│       └── *.json
+└── assets/
+    └── *.jpg
+```
+
 #### GitHub Pages
 
-1. **Push to GitHub repository**
+✅ **Fully Compatible** - Uses HTTP/HTTPS protocol
+
+1. **Push to GitHub repository** (including campaigns/ directory)
 2. **Enable GitHub Pages** in repository settings
 3. **Select branch** for deployment
 
 #### Other Static Hosts
 
-- Netlify
-- Vercel
-- Firebase Hosting
+✅ **All Compatible** - Use HTTP/HTTPS protocol
+
+- **Netlify** - Drag & drop entire project folder
+- **Vercel** - Connect GitHub repository
+- **Firebase Hosting** - Deploy using Firebase CLI
+- **Surge.sh** - Simple command-line deployment
 
 ### Pre-Deployment Checklist
 
-- [ ] Test campaign loading via web server
+- [ ] Test campaign loading via local web server (`python3 -m http.server 8000`)
 - [ ] Verify all images load correctly
-- [ ] Test tab switching functionality
-- [ ] Check modal popups work
-- [ ] Validate responsive design
-- [ ] Test fallback mechanisms
+- [ ] Test tab switching functionality (Active/Completed campaigns)
+- [ ] Check modal popups work for campaign details
+- [ ] Validate responsive design on mobile/tablet
+- [ ] Verify JSON files are properly uploaded to hosting platform
+- [ ] Test admin.js functionality for campaign management (if applicable)
 
 ## Troubleshooting
 
 ### Common Issues
 
 #### Campaigns Not Loading
+- **Check**: Are you using a web server? (Required for local development)
 - **Check**: `manifest.json` files exist in campaign directories
 - **Check**: JSON files are valid and accessible
 - **Check**: Browser console for fetch errors
+- **Check**: CORS errors indicate file:// protocol usage
+
+#### "Failed to fetch" Errors
+- **Cause**: Usually indicates file:// protocol usage
+- **Solution**: Use a web server for local development
+- **Command**: `python3 -m http.server 8000`
 
 #### Icons Not Displaying
 - **Check**: FontAwesome CDN is loading
@@ -342,7 +449,7 @@ modal.innerHTML = `
 #### Modal Not Opening
 - **Check**: JavaScript event listeners
 - **Check**: Campaign ID matching
-- **Check**: Fallback data includes campaign details
+- **Check**: JSON files contain campaign details
 
 ### Debug Tools
 
@@ -384,10 +491,28 @@ console.log(window.SevabrataWebsite)
 
 ### Development Workflow
 
-1. **Make changes** to relevant files
-2. **Test locally** using web server
-3. **Verify responsive** design
-4. **Check browser** compatibility
-5. **Deploy** to staging/production
+1. **Start web server**: `python3 -m http.server 8000`
+2. **Make changes** to relevant files
+3. **Test locally** at `http://localhost:8000`
+4. **Verify responsive** design on different devices
+5. **Check browser** compatibility
+6. **Test campaign loading** and admin interface
+7. **Deploy** to staging/production
+
+### Common Commands
+
+```bash
+# Start development server
+python3 -m http.server 8000
+
+# Convert CSV to JSON
+python3 csv_to_json_converter.py
+
+# Access admin interface
+http://localhost:8000/admin.html
+
+# Access main website
+http://localhost:8000
+```
 
 For questions or issues, refer to the code comments or contact the development team.

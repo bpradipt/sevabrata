@@ -2,7 +2,7 @@
   "id": "palash-das-kidney-transplant",
   "title": "Palash Das - Kidney Transplant",
   "shortDescription": "Young Palash needs urgent kidney transplant surgery. Help us save his life",
-  "fullDescription": "Palash Das, a 28-year-old from rural West Bengal, has been suffering from chronic kidney disease for the past two years. Despite his family's best efforts, they cannot afford the expensive treatment required for a kidney transplant.\n\nPalash was the sole breadwinner for his family of four, but his deteriorating health has made it impossible for him to work. The family has already exhausted their savings and borrowed money from relatives.\n\nThe doctors at Apollo Hospital, Kolkata, have confirmed that Palash urgently needs a kidney transplant to save his life. The total cost of the surgery and post-operative care is estimated at ₹5,00,000.\n\nEvery contribution, no matter how small, brings us closer to saving Palash's life. Your generosity can give him a second chance at life and help his family during this difficult time.",
+  "fullDescription": "Palash Das, a 28-year-old from rural West Bengal, has been suffering from chronic kidney disease for the past two years. Despite his family's best efforts, they cannot afford the expensive treatment required for a kidney transplant.\\n\\nPalash was the sole breadwinner for his family of four, but his deteriorating health has made it impossible for him to work. The family has already exhausted their savings and borrowed money from relatives.\\n\\nThe doctors at Apollo Hospital, Kolkata, have confirmed that Palash urgently needs a kidney transplant to save his life. The total cost of the surgery and post-operative care is estimated at ₹5,00,000.\\n\\nEvery contribution, no matter how small, brings us closer to saving Palash's life. Your generosity can give him a second chance at life and help his family during this difficult time.",
   "image": "",
   "targetAmount": 500000,
   "raisedAmount": 125000,
@@ -43,9 +43,10 @@
   "createdDate": "2023-12-15",
   "lastUpdated": "2024-01-15",
   "tags": [
-    "kidney",
-    "transplant",
     "chronic disease",
-    "medical emergency"
+    "kidney",
+    "medical",
+    "medical emergency",
+    "transplant"
   ]
 }
