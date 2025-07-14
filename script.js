@@ -417,6 +417,12 @@ class SevabrataWebsite {
 
     async getCampaignDetails(campaignId) {
         try {
+            // Check if we're running from file:// protocol (local file testing)
+            if (window.location.protocol === 'file:') {
+                console.log('File protocol detected, using fallback campaign details');
+                return this.getFallbackCampaignDetails(campaignId);
+            }
+            
             // Try to find the campaign in different directories
             const directories = ['active', 'completed', 'ended', 'archived'];
             
@@ -454,6 +460,35 @@ class SevabrataWebsite {
         }
     }
 
+    getFallbackCampaignDetails(campaignId) {
+        // Fallback campaign details for local file testing
+        const campaignDetailsMap = {
+            "naba-kumar-tripathi-throat-cancer": {
+                title: "Naba Kumar Tripathi - Throat cancer patient",
+                fullStory: "The annual income of Naba Kumar's family is Rs. 36000/-. Two surgeries, prolonged intravenous chemotherapy, and brief radiation therapy (which could not be tolerated) have been completed free of cost. When the patient was finding it difficult to travel repeatedly between Mednipur and Pondicherry, the patient has shifted to treatment from the Department of Oncology/cancer in Mednipur Medical College.\n\nIn Mednipur, doctors have put him on oral chemotherapy along with a set of other medications to control the side effects. He is also on protein supplements such as proteinex for nutrition since he cannot chew well. While treatment at JIPMER was free, it is not free at Mednipur Medical College and amounts to nearly Rs. 7100/- per month.\n\nHe is also to soon undergo two scans which include a PET CT scan (cost ranging from Rs. 15K to Rs. 35 K) to monitor the spread of the cancer and the effectiveness of medicines being given. Paying such a large amount in one shot for this scan is seeming impossible for the patient's family.\n\nWhile the school helps in bearing some cost of the education of his daughters, they are still understandably in severe need for funds given their background and annual income. We aim to raise funds for this scan as well as to bear the cost of some months of treatment.",
+                timeline: [
+                    {
+                        date: "2025-06-02",
+                        event: "Campaign launched",
+                        description: "Fundraising campaign started for ongoing treatment costs"
+                    }
+                ],
+                patientDetails: {
+                    name: "Naba Kumar Tripathi",
+                    age: "43",
+                    location: "West Bengal, India",
+                    condition: "Throat cancer",
+                    hospital: "Mednipur Medical College"
+                }
+            }
+        };
+
+        return campaignDetailsMap[campaignId] || {
+            title: 'Campaign Details',
+            fullStory: 'Campaign details not available at this time.'
+        };
+    }
+
     createCampaignModal(details) {
         // Remove existing modal if any
         const existingModal = document.querySelector('.campaign-modal');
@@ -467,8 +502,9 @@ class SevabrataWebsite {
         modal.innerHTML = `
             <div class="modal-overlay">
                 <div class="modal-content">
-                    <button class="modal-close">&times;</button>
-                    <h2>${details.title}</h2>
+                    <div class="modal-header">
+                        <h2 class="modal-title">${details.title}</h2>
+                    </div>
                     <div class="modal-body">
                         <p>${details.fullStory.replace(/\n\s*/g, '</p><p>')}</p>
                         ${details.timeline ? this.createTimeline(details.timeline) : ''}
@@ -514,32 +550,37 @@ class SevabrataWebsite {
                     max-height: 80vh;
                     overflow-y: auto;
                     position: relative;
-                    padding: 2rem;
+                    padding: 0;
                 }
                 
-                .modal-close {
-                    position: absolute;
-                    top: 1rem;
-                    right: 1rem;
-                    background: none;
-                    border: none;
-                    font-size: 2rem;
-                    cursor: pointer;
-                    color: #666;
+                .modal-header {
+                    padding: 2rem 2rem 1rem 2rem;
+                    border-bottom: 1px solid #eee;
                 }
                 
-                .modal-close:hover {
-                    color: #000;
+                .modal-title {
+                    margin: 0;
+                    font-size: 1.5rem;
+                    line-height: 1.3;
+                    color: #333;
                 }
                 
                 .modal-body {
-                    margin: 1rem 0 2rem;
+                    padding: 1rem 2rem 2rem 2rem;
                 }
                 
                 .modal-actions {
                     display: flex;
                     gap: 1rem;
                     justify-content: flex-end;
+                    padding: 0 2rem 2rem 2rem;
+                    border-top: 1px solid #eee;
+                    padding-top: 1.5rem;
+                }
+                
+                .modal-actions .btn {
+                    min-width: 120px;
+                    text-align: center;
                 }
                 
                 @keyframes fadeIn {
@@ -552,12 +593,21 @@ class SevabrataWebsite {
                         padding: 1rem;
                     }
                     
-                    .modal-content {
-                        padding: 1.5rem;
+                    .modal-header {
+                        padding: 1.5rem 1.5rem 1rem 1.5rem;
+                    }
+                    
+                    .modal-title {
+                        font-size: 1.25rem;
+                    }
+                    
+                    .modal-body {
+                        padding: 1rem 1.5rem 1.5rem 1.5rem;
                     }
                     
                     .modal-actions {
                         flex-direction: column;
+                        padding: 0 1.5rem 1.5rem 1.5rem;
                     }
                 }
             </style>
@@ -621,19 +671,19 @@ class SevabrataWebsite {
     getFallbackCampaigns() {
         return [
             {
-                id: "child-heart-surgery-fund",
-                title: "Children's Heart Surgery Fund",
-                description: "Supporting children who need life-saving heart surgeries.",
-                fullDescription: "Many children in rural India are born with congenital heart defects that require immediate surgical intervention. Unfortunately, most families cannot afford the high cost of pediatric cardiac surgery.\n\nOur Children's Heart Surgery Fund specifically focuses on helping children under 18 years of age who need heart surgery. We work closely with leading pediatric cardiac centers to ensure the best possible care.\n\nEvery child deserves a chance at a healthy life. Your contribution to this fund directly helps save young lives and gives these children the opportunity to grow up healthy and strong.\n\nSince 2018, this fund has successfully supported over 25 children's heart surgeries with a 98% success rate.",
-                image: "assets/prakash1.jpg",
-                targetAmount: 2000000,
-                raisedAmount: 890000,
+                id: "naba-kumar-tripathi-throat-cancer",
+                title: "Naba Kumar Tripathi - Throat cancer patient",
+                description: "Supporting throat cancer treatment for Naba Kumar Tripathi",
+                fullDescription: "The annual income of Naba Kumar's family is Rs. 36000/-. Two surgeries, prolonged intravenous chemotherapy, and brief radiation therapy (which could not be tolerated) have been completed free of cost. When the patient was finding it difficult to travel repeatedly between Mednipur and Pondicherry, the patient has shifted to treatment from the Department of Oncology/cancer in Mednipur Medical College. In Mednipur, doctors have put him on oral chemotherapy along with a set of other medications to control the side effects. He is also on protein supplements such as proteinex for nutrition since he cannot chew well. While treatment at JIPMER was free, it is not free at Mednipur Medical College and amounts to nearly Rs. 7100/- per month. He is also to soon undergo two scans which include a PET CT scan (cost ranging from Rs. 15K to Rs. 35 K) to monitor the spread of the cancer and the effectiveness of medicines being given. Paying such a large amount in one shot for this scan is seeming impossible for the patient's family. While the school helps in bearing some cost of the education of his daughters, they are still understandably in severe need for funds given their background and annual income. We aim to raise funds for this scan as well as to bear the cost of some months of treatment",
+                image: "",
+                targetAmount: 70000,
+                raisedAmount: 57000,
                 status: "active",
-                urgency: "high",
-                patientAge: "0-18 years",
-                medicalCondition: "Congenital Heart Defects",
-                hospital: "Various Pediatric Cardiac Centers",
-                lastUpdated: "2024-01-12",
+                urgency: "medium",
+                patientAge: "43",
+                medicalCondition: "Throat cancer",
+                hospital: "Mednipur Medical College",
+                lastUpdated: "2025-06-02",
                 category: "medical"
             }
         ];

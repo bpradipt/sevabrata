@@ -1,0 +1,56 @@
+{
+  "id": "ananta-das-adhikari-eye-surgery",
+  "title": "Ananta Das Adhikari - eye surgery",
+  "shortDescription": "3-year-old Ananta needs urgent eye surgery after an accident",
+  "fullDescription": "Ananta Das Adhikari, just 3 years old, met with an unfortunate accident while playing in the evening about a month ago. He hurt his right eye, and his family from Dyaora village, Paschim Medinipur, is in dire need of help to fund his urgent eye surgery. Ananta's father is a farmer and the sole breadwinner of the family, which includes his parents, wife, and Ananta. With a monthly income of just ₹5,000 from labor and farming, the family is struggling to arrange funds for the surgery.",
+  "image": "",
+  "targetAmount": 60000,
+  "raisedAmount": 93802,
+  "currency": "INR",
+  "status": "ended",
+  "urgency": "high",
+  "category": "medical",
+  "patientDetails": {
+    "name": "Ananta Das Adhikari",
+    "age": "3",
+    "location": "West Bengal, India",
+    "condition": "Right eye surgery (caused by accident)",
+    "hospital": "Sankara Nethralaya, Kolkata",
+    "doctor": ""
+  },
+  "timeline": [
+    {
+      "date": "2025-06-02",
+      "event": "Campaign launched",
+      "description": "Sevabrata team conducted an emergency meeting considering the urgency of the situation and to support the operation scheduled for the next day."
+    },
+    {
+      "date": "2025-06-02",
+      "event": "Surgery Started",
+      "description": "Surgery started at Sankara Nethralaya, Kolkata at 1:51 pm"
+    },
+    {
+      "date": "2025-06-02",
+      "event": "Medical Update",
+      "description": "After a thorough investigation under anaesthesia, doctors decided not to perform the planned operation. They found that potential holes in the eye were healing, and prescribed medication instead. Follow-up examinations will determine if future surgery is needed. Ananta is to be discharged on the next day (June 3rd)"
+    },
+    {
+      "date": "2025-06-07",
+      "event": "Medical Update",
+      "description": "Doctors at Sankara Nethralaya found that the previously suspected holes/injuries had healed. A white layer on the retina, caused by secretion from the injury, was identified as the cause of blurred vision. Medication was prescribed to remove this layer."
+    },
+    {
+      "date": "2025-06-10",
+      "event": "Medical Update",
+      "description": "Ananta had his scheduled consultation at Sankara Nethralaya. The white layer on his retina is gradually reducing. Ananta claims he is beginning to see through the affected eye, though doctors advise caution due to his age. The next doctor's visit is planned for June 21st. Medication is to continue for 1.5 months with regular checkups. After 1.5 months, the need for an operation will be reassessed."
+    }
+  ],
+  "createdDate": "2025-06-02",
+  "lastUpdated": "2025-06-10",
+  "tags": [
+    "eye surgery",
+    "pediatric",
+    "accident injury",
+    "emergency"
+  ]
+}
