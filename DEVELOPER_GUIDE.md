@@ -191,7 +191,8 @@ renderCampaigns(campaigns, type) // Renders campaign cards
 renderSuccessStories(stories) // Renders success story cards
 createCampaignCard(campaign, type) // Creates individual card HTML
 createSuccessStoryCard(story) // Creates success story card HTML
-createCampaignModal(details) // Creates detailed modal popup
+createCampaignModal(details, isCompleted) // Creates detailed modal popup
+isCampaignCompleted(campaignId) // Checks if campaign is completed
 ```
 
 **Navigation:**

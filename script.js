@@ -558,7 +558,19 @@ class SevabrataWebsite {
     async showCampaignDetails(campaignId) {
         // Load detailed information from the new directory structure
         const campaignDetails = await this.getCampaignDetails(campaignId);
-        this.createCampaignModal(campaignDetails);
+        // Check if campaign is completed by looking for it in completed directory
+        const isCompleted = await this.isCampaignCompleted(campaignId);
+        this.createCampaignModal(campaignDetails, isCompleted);
+    }
+
+    async isCampaignCompleted(campaignId) {
+        try {
+            // Check if campaign exists in completed directory
+            const response = await fetch(`campaigns/completed/${campaignId}.json`);
+            return response.ok;
+        } catch (error) {
+            return false;
+        }
     }
 
     async getCampaignDetails(campaignId) {
@@ -611,7 +623,7 @@ class SevabrataWebsite {
     }
 
 
-    createCampaignModal(details) {
+    createCampaignModal(details, isCompleted = false) {
         // Remove existing modal if any
         const existingModal = document.querySelector('.campaign-modal');
         if (existingModal) {
@@ -625,15 +637,21 @@ class SevabrataWebsite {
             <div class="modal-overlay">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h2 class="modal-title">${details.title}</h2>
+                        <h2 class="modal-title">
+                            ${details.title}
+                            ${isCompleted ? '<span class="success-badge" style="margin-left: 0.5rem;">Completed</span>' : ''}
+                        </h2>
                     </div>
                     <div class="modal-body">
                         <p>${details.fullStory.replace(/\n\s*/g, '</p><p>')}</p>
                         ${details.timeline ? this.createTimeline(details.timeline) : ''}
                     </div>
                     <div class="modal-actions">
-                        <a href="#contribute" class="btn btn-primary">Donate Now</a>
-                        <button class="btn btn-secondary modal-close">Close</button>
+                        ${isCompleted ? 
+                            `<button class="btn btn-secondary modal-close">Close</button>` :
+                            `<a href="#contribute" class="btn btn-primary">Donate Now</a>
+                             <button class="btn btn-secondary modal-close">Close</button>`
+                        }
                     </div>
                 </div>
             </div>
