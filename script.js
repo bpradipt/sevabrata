@@ -787,7 +787,10 @@ class SevabrataWebsite {
                 ${timeline.map(item => `
                     <div class="timeline-item">
                         <div class="timeline-date">${this.formatDate(item.date)}</div>
-                        <div class="timeline-event">${item.event}</div>
+                        <div class="timeline-content">
+                            <div class="timeline-event">${item.event}</div>
+                            ${item.description ? `<div class="timeline-description">${item.description}</div>` : ''}
+                        </div>
                     </div>
                 `).join('')}
             </div>
@@ -1117,9 +1120,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 min-width: 120px;
             }
             
-            .timeline-event {
+            .timeline-content {
                 flex: 1;
+            }
+            
+            .timeline-event {
                 color: #666;
+                font-weight: 500;
+            }
+            
+            .timeline-description {
+                color: #555;
+                margin-top: 0.5rem;
+                font-size: 0.9rem;
+                line-height: 1.4;
             }
             
             @media (max-width: 767px) {
