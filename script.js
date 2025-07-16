@@ -484,7 +484,7 @@ class SevabrataWebsite {
             `<div class="campaign-actions">
                 <a href="#contribute" class="btn btn-primary campaign-donate-btn">Donate Now</a>
                 <button class="btn btn-secondary campaign-details-btn" data-campaign-id="${campaign.id}">
-                    Learn More
+                    View Details
                 </button>
             </div>`;
         
