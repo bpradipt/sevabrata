@@ -6,6 +6,7 @@ class SevabrataWebsite {
         this.loadCampaigns();
         this.loadSuccessStories();
         this.loadNews();
+        this.loadAnnualReports();
     }
 
     init() {
@@ -1034,6 +1035,290 @@ class SevabrataWebsite {
         });
     }
 
+    async loadAnnualReports() {
+        try {
+            // Static reports data - in a real implementation, this could be loaded from a manifest file
+            const annualReports = [
+                {
+                    id: 'sevabrata-activity-report-2019-2024',
+                    title: 'Sevabrata Activity Report 2019-2024',
+                    description: 'Comprehensive report covering our activities, impact, and achievements from 2019 to 2024. Includes detailed financial information, success stories, and future plans.',
+                    fileName: 'Sevabrata Activity Report 2019_2024_v03.pdf',
+                    filePath: 'annual-reports/Sevabrata%20Activity%20Report%202019_2024_v03.pdf',
+                    fileSize: '1.4 MB',
+                    publishDate: '2024-12-01',
+                    year: '2019-2024',
+                    coverImage: 'assets/report-cover-2019-2024.jpg', // fallback to default if not found
+                    pages: 45,
+                    highlights: [
+                        'Helped 125+ families with medical assistance',
+                        'Raised ₹85+ lakhs for critical treatments',
+                        'Supported 40+ students through SAS program',
+                        'Conducted 15+ awareness sessions'
+                    ]
+                }
+            ];
+
+            this.annualReports = annualReports;
+            this.renderAnnualReports(annualReports);
+        } catch (error) {
+            console.error('Error loading annual reports:', error);
+            this.renderAnnualReports([]);
+        }
+    }
+
+    renderAnnualReports(reports) {
+        const container = document.getElementById('reports-container');
+        if (!container) {
+            console.error('Annual reports container not found!');
+            return;
+        }
+
+        if (reports.length === 0) {
+            container.innerHTML = '<div class="no-reports"><p>No annual reports available at this time.</p></div>';
+            return;
+        }
+
+        // Render report cards
+        container.innerHTML = reports.map(report => this.createReportCard(report)).join('');
+        
+        // Add click event listeners to download buttons
+        this.setupReportInteractions();
+    }
+
+    createReportCard(report) {
+        return `
+            <div class="report-card">
+                <div class="report-content">
+                    <h3>${report.title}</h3>
+                    <div class="report-actions">
+                        <button class="btn btn-primary download-btn" data-report-path="${report.filePath}" data-report-name="${report.fileName}">
+                            <i class="fas fa-download"></i>
+                            Download
+                        </button>
+                        <button class="btn btn-secondary preview-btn" data-report-path="${report.filePath}" data-report-title="${report.title}">
+                            <i class="fas fa-eye"></i>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    setupReportInteractions() {
+        // Handle download buttons
+        document.querySelectorAll('.download-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const reportPath = e.currentTarget.getAttribute('data-report-path');
+                const reportName = e.currentTarget.getAttribute('data-report-name');
+                this.downloadReport(reportPath, reportName);
+            });
+        });
+
+        // Handle preview buttons
+        document.querySelectorAll('.preview-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const reportPath = e.currentTarget.getAttribute('data-report-path');
+                const reportTitle = e.currentTarget.getAttribute('data-report-title');
+                this.previewReport(reportPath, reportTitle);
+            });
+        });
+    }
+
+    downloadReport(reportPath, reportName) {
+        try {
+            // Create a temporary link element to trigger download
+            const link = document.createElement('a');
+            link.href = reportPath;
+            link.download = reportName;
+            link.style.display = 'none';
+            
+            // Add to DOM, click, and remove
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log(`Downloaded report: ${reportName}`);
+        } catch (error) {
+            console.error('Error downloading report:', error);
+            alert('Sorry, there was an error downloading the report. Please try again later.');
+        }
+    }
+
+    previewReport(reportPath, reportTitle) {
+        try {
+            // Open PDF in a new window for preview
+            const previewWindow = window.open(reportPath, '_blank');
+            
+            // Fallback if popup is blocked
+            if (!previewWindow || previewWindow.closed || typeof previewWindow.closed == 'undefined') {
+                // If popup is blocked, show a modal with iframe
+                this.createPDFPreviewModal(reportPath, reportTitle);
+            }
+        } catch (error) {
+            console.error('Error previewing report:', error);
+            alert('Sorry, there was an error previewing the report. Please try downloading it instead.');
+        }
+    }
+
+    createPDFPreviewModal(reportPath, reportTitle) {
+        // Remove existing modal if any
+        const existingModal = document.querySelector('.pdf-preview-modal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'pdf-preview-modal';
+        modal.innerHTML = `
+            <div class="modal-overlay">
+                <div class="modal-content pdf-modal">
+                    <div class="modal-header">
+                        <h2 class="modal-title">${reportTitle}</h2>
+                        <button class="modal-close-btn" aria-label="Close preview">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <iframe src="${reportPath}" width="100%" height="100%" frameborder="0">
+                            <p>Your browser does not support PDFs. 
+                               <a href="${reportPath}" target="_blank">Download the PDF</a> instead.
+                            </p>
+                        </iframe>
+                    </div>
+                    <div class="modal-actions">
+                        <a href="${reportPath}" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt"></i>
+                            Open in New Tab
+                        </a>
+                        <button class="btn btn-secondary modal-close">Close</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add modal styles
+        const modalStyles = `
+            <style>
+                .pdf-preview-modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 2000;
+                    animation: fadeIn 0.3s ease;
+                }
+                
+                .pdf-preview-modal .modal-overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 1rem;
+                }
+                
+                .pdf-modal {
+                    max-width: 90vw;
+                    max-height: 90vh;
+                    width: 900px;
+                    height: 700px;
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                .pdf-modal .modal-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 1rem 1.5rem;
+                    border-bottom: 1px solid #eee;
+                    flex-shrink: 0;
+                }
+                
+                .modal-close-btn {
+                    background: none;
+                    border: none;
+                    font-size: 1.5rem;
+                    cursor: pointer;
+                    color: #666;
+                    padding: 0.5rem;
+                    border-radius: 50%;
+                    transition: background-color 0.2s ease;
+                }
+                
+                .modal-close-btn:hover {
+                    background-color: #f0f0f0;
+                    color: #333;
+                }
+                
+                .pdf-modal .modal-body {
+                    flex: 1;
+                    padding: 0;
+                    overflow: hidden;
+                }
+                
+                .pdf-modal iframe {
+                    border: none;
+                    background: white;
+                }
+                
+                .pdf-modal .modal-actions {
+                    display: flex;
+                    gap: 1rem;
+                    justify-content: flex-end;
+                    padding: 1rem 1.5rem;
+                    border-top: 1px solid #eee;
+                    flex-shrink: 0;
+                }
+                
+                @media (max-width: 768px) {
+                    .pdf-modal {
+                        width: 95vw;
+                        height: 85vh;
+                    }
+                    
+                    .pdf-modal .modal-actions {
+                        flex-direction: column;
+                    }
+                }
+            </style>
+        `;
+
+        // Append styles and modal to body
+        document.head.insertAdjacentHTML('beforeend', modalStyles);
+        document.body.appendChild(modal);
+
+        // Setup modal close functionality
+        modal.querySelectorAll('.modal-close, .modal-close-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                modal.remove();
+            });
+        });
+
+        // Close on overlay click
+        modal.querySelector('.modal-overlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                modal.remove();
+            }
+        });
+
+        // Close on escape key
+        document.addEventListener('keydown', function escapeHandler(e) {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        });
+    }
+
     async showCampaignDetails(campaignId) {
         // Load detailed information from the new directory structure
         const campaignDetails = await this.getCampaignDetails(campaignId);
@@ -1755,6 +2040,194 @@ document.addEventListener('DOMContentLoaded', () => {
                 padding: 1.5rem;
             }
             
+            /* Annual Reports Styles */
+            .reports-content {
+                margin-top: 2rem;
+            }
+            
+            .reports-intro {
+                text-align: center;
+                margin-bottom: 3rem;
+                max-width: 800px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .reports-intro p {
+                font-size: 1.1rem;
+                line-height: 1.6;
+                color: #666;
+            }
+            
+            .reports-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                gap: 2rem;
+                max-width: 100%;
+            }
+            
+            .report-card {
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+                overflow: hidden;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                text-align: center;
+                padding: 2rem;
+            }
+            
+            .report-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            }
+            
+            .report-image {
+                position: relative;
+                height: 200px;
+                background: linear-gradient(135deg, #ff6b35, #f7931e);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+            
+            .report-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            .report-overlay {
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+                background: rgba(255, 255, 255, 0.9);
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: #333;
+            }
+            
+            .report-overlay i {
+                color: #dc3545;
+                font-size: 1rem;
+            }
+            
+            .report-content h3 {
+                margin: 0 0 1.5rem 0;
+                color: #333;
+                font-size: 1.3rem;
+                line-height: 1.3;
+            }
+            
+            .report-year {
+                color: var(--primary-color);
+                font-weight: 600;
+                font-size: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .report-description {
+                color: #666;
+                line-height: 1.6;
+                margin-bottom: 1.5rem;
+            }
+            
+            .report-highlights {
+                margin-bottom: 1.5rem;
+            }
+            
+            .report-highlights h4 {
+                margin: 0 0 0.75rem 0;
+                color: #333;
+                font-size: 1rem;
+            }
+            
+            .report-highlights ul {
+                margin: 0;
+                padding-left: 1rem;
+                list-style-type: none;
+            }
+            
+            .report-highlights li {
+                position: relative;
+                padding-left: 1rem;
+                margin-bottom: 0.5rem;
+                color: #666;
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+            
+            .report-highlights li:before {
+                content: "✓";
+                position: absolute;
+                left: 0;
+                color: #28a745;
+                font-weight: bold;
+            }
+            
+            .report-meta {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+                padding-top: 1rem;
+                border-top: 1px solid #eee;
+                font-size: 0.875rem;
+                color: #666;
+            }
+            
+            .report-actions {
+                display: flex;
+                gap: 1rem;
+            }
+            
+            .report-actions .btn {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+                text-decoration: none;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .report-actions .btn-primary {
+                background-color: var(--primary-color);
+                color: white;
+            }
+            
+            .report-actions .btn-primary:hover {
+                background-color: #e55730;
+                transform: translateY(-1px);
+            }
+            
+            .report-actions .btn-secondary {
+                background-color: #f8f9fa;
+                color: #333;
+                border: 1px solid #ddd;
+            }
+            
+            .report-actions .btn-secondary:hover {
+                background-color: #e9ecef;
+                transform: translateY(-1px);
+            }
+            
+            .no-reports {
+                text-align: center;
+                padding: 3rem;
+                color: #666;
+            }
+            
             @media (max-width: 767px) {
                 .stories-grid, .news-grid {
                     grid-template-columns: 1fr;
@@ -1764,6 +2237,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 .story-card, .news-card {
                     max-width: 100%;
                     width: 100%;
+                }
+                
+                .reports-grid {
+                    grid-template-columns: 1fr;
+                    gap: 1.5rem;
+                }
+                
+                .report-content {
+                    padding: 1.5rem;
+                }
+                
+                .report-meta {
+                    flex-direction: column;
+                    gap: 0.5rem;
+                    align-items: flex-start;
+                }
+                
+                .report-actions {
+                    flex-direction: column;
+                }
+                
+                .reports-intro {
+                    margin-bottom: 2rem;
                 }
             }
         </style>
