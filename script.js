@@ -5,6 +5,7 @@ class SevabrataWebsite {
         this.init();
         this.loadCampaigns();
         this.loadSuccessStories();
+        this.loadNews();
     }
 
     init() {
@@ -409,6 +410,9 @@ class SevabrataWebsite {
         
         // Render story cards
         container.innerHTML = stories.map(story => this.createSuccessStoryCard(story)).join('');
+        
+        // Add click event listeners to success story cards
+        this.setupSuccessStoryInteractions();
     }
 
     createSuccessStoryCard(story) {
@@ -424,7 +428,7 @@ class SevabrataWebsite {
             : story.description;
         
         return `
-            <div class="story-card" data-story-id="${story.id}">
+            <div class="story-card clickable" data-story-id="${story.id}" role="button" tabindex="0">
                 <div class="story-image">
                     <img src="${story.image}" alt="${story.patientName}" onerror="this.src='assets/sevalog1crop.jpg'">
                 </div>
@@ -436,6 +440,9 @@ class SevabrataWebsite {
                         <span class="stat">₹${amountRaised}</span>
                         <span class="stat">${story.treatment}</span>
                         <span class="stat">${story.year}</span>
+                    </div>
+                    <div class="story-actions">
+                        <span class="view-details-hint">Click to view full story</span>
                     </div>
                 </div>
             </div>
@@ -552,6 +559,478 @@ class SevabrataWebsite {
                     behavior: 'smooth'
                 });
             });
+        });
+    }
+
+    setupSuccessStoryInteractions() {
+        // Handle success story card clicks
+        document.querySelectorAll('.story-card.clickable').forEach(card => {
+            // Click event
+            card.addEventListener('click', (e) => {
+                const storyId = e.currentTarget.getAttribute('data-story-id');
+                this.showSuccessStoryDetails(storyId);
+            });
+
+            // Keyboard event for accessibility
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const storyId = e.currentTarget.getAttribute('data-story-id');
+                    this.showSuccessStoryDetails(storyId);
+                }
+            });
+
+            // Add hover effect
+            card.addEventListener('mouseenter', () => {
+                card.style.cursor = 'pointer';
+            });
+        });
+    }
+
+    showSuccessStoryDetails(storyId) {
+        const story = this.successStories.find(s => s.id === storyId);
+        if (story) {
+            this.createSuccessStoryModal(story);
+        }
+    }
+
+    createSuccessStoryModal(story) {
+        // Remove existing modal if any
+        const existingModal = document.querySelector('.success-story-modal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // Format the amount raised
+        const amountRaised = story.amountRaised ? this.formatAmount(story.amountRaised) : 'Amount not specified';
+
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'success-story-modal';
+        modal.innerHTML = `
+            <div class="modal-overlay">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">${story.patientName}'s Success Story</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="story-hero">
+                            <img src="${story.image}" alt="${story.patientName}" onerror="this.src='assets/sevalog1crop.jpg'">
+                            <div class="story-summary">
+                                <div class="story-detail">
+                                    <strong>Condition:</strong> ${story.condition}
+                                </div>
+                                <div class="story-detail">
+                                    <strong>Treatment:</strong> ${story.treatment}
+                                </div>
+                                <div class="story-detail">
+                                    <strong>Hospital:</strong> ${story.hospital}
+                                </div>
+                                <div class="story-detail">
+                                    <strong>Amount Raised:</strong> ₹${amountRaised}
+                                </div>
+                                <div class="story-detail">
+                                    <strong>Year:</strong> ${story.year}
+                                </div>
+                                <div class="story-detail">
+                                    <strong>Outcome:</strong> ${story.outcome}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="story-description">
+                            <h3>Full Story</h3>
+                            <p>${story.description}</p>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn btn-secondary modal-close">Close</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add modal styles
+        const modalStyles = `
+            <style>
+                .success-story-modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 2000;
+                    animation: fadeIn 0.3s ease;
+                }
+                
+                .success-story-modal .modal-overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 2rem;
+                }
+                
+                .success-story-modal .modal-content {
+                    background: white;
+                    border-radius: 12px;
+                    max-width: 700px;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    position: relative;
+                    padding: 0;
+                }
+                
+                .story-hero {
+                    display: flex;
+                    gap: 2rem;
+                    margin-bottom: 2rem;
+                }
+                
+                .story-hero img {
+                    width: 200px;
+                    height: 200px;
+                    object-fit: cover;
+                    border-radius: 8px;
+                    flex-shrink: 0;
+                }
+                
+                .story-summary {
+                    flex: 1;
+                }
+                
+                .story-detail {
+                    margin-bottom: 0.75rem;
+                    padding: 0.5rem;
+                    background-color: #f8f9fa;
+                    border-radius: 4px;
+                }
+                
+                .story-detail strong {
+                    color: var(--primary-color);
+                    display: inline-block;
+                    min-width: 100px;
+                }
+                
+                .story-description h3 {
+                    color: var(--primary-color);
+                    margin-bottom: 1rem;
+                }
+                
+                .story-description p {
+                    line-height: 1.6;
+                    color: #333;
+                }
+                
+                @media (max-width: 768px) {
+                    .story-hero {
+                        flex-direction: column;
+                        text-align: center;
+                    }
+                    
+                    .story-hero img {
+                        width: 150px;
+                        height: 150px;
+                        align-self: center;
+                    }
+                    
+                    .story-detail strong {
+                        min-width: auto;
+                        display: block;
+                        margin-bottom: 0.25rem;
+                    }
+                }
+            </style>
+        `;
+
+        // Append styles and modal to body
+        document.head.insertAdjacentHTML('beforeend', modalStyles);
+        document.body.appendChild(modal);
+
+        // Setup modal close functionality
+        modal.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', () => {
+                modal.remove();
+            });
+        });
+
+        // Close on overlay click
+        modal.querySelector('.modal-overlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                modal.remove();
+            }
+        });
+
+        // Close on escape key
+        document.addEventListener('keydown', function escapeHandler(e) {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        });
+    }
+
+    async loadNews() {
+        try {
+            console.log('Loading news articles...');
+            
+            // Static news data for now - in a real implementation, this would come from a CMS or API
+            const newsArticles = [
+                {
+                    id: 'media-coverage-success-stories',
+                    title: 'Media Coverage of Our Success Stories',
+                    summary: 'National media coverage highlighting our successful medical interventions and community support initiatives.',
+                    fullContent: 'Sevabrata Foundation has been featured in multiple national and regional media outlets for our successful medical interventions. Our work in providing critical medical care to underprivileged families has gained recognition from various news organizations, helping to raise awareness about rural healthcare challenges and the importance of community support in addressing these issues.',
+                    image: 'assets/art1.png',
+                    publishDate: '2024-01-15',
+                    source: 'National Media',
+                    category: 'media-coverage'
+                },
+                {
+                    id: 'rural-healthcare-impact-recognition',
+                    title: 'Recognition for Rural Healthcare Impact',
+                    summary: 'Coverage of our work in bridging the healthcare gap in rural communities across India.',
+                    fullContent: 'Our foundation\'s efforts to bridge the healthcare gap in rural communities have been recognized by health policy experts and government officials. The innovative approach of combining financial assistance, medical guidance, and logistical support has proven effective in helping families access critical medical care that would otherwise be beyond their reach.',
+                    image: 'assets/art2.png',
+                    publishDate: '2023-12-20',
+                    source: 'Healthcare Journal',
+                    category: 'recognition'
+                }
+            ];
+
+            this.newsArticles = newsArticles;
+            this.renderNews(newsArticles);
+        } catch (error) {
+            console.error('Error loading news:', error);
+            this.renderNews([]);
+        }
+    }
+
+    renderNews(articles) {
+        const container = document.getElementById('news-container');
+        if (!container) {
+            console.error('News container not found!');
+            return;
+        }
+
+        console.log('Rendering news articles:', articles);
+        
+        if (articles.length === 0) {
+            container.innerHTML = '<div class="no-news"><p>No news articles available at this time.</p></div>';
+            return;
+        }
+
+        // Render news cards
+        container.innerHTML = articles.map(article => this.createNewsCard(article)).join('');
+        
+        // Add click event listeners to news cards
+        this.setupNewsInteractions();
+    }
+
+    createNewsCard(article) {
+        return `
+            <div class="news-card clickable" data-news-id="${article.id}" role="button" tabindex="0">
+                <img src="${article.image}" alt="${article.title}" onerror="this.src='assets/sevalog1crop.jpg'">
+                <div class="news-content">
+                    <h3>${article.title}</h3>
+                    <p>${article.summary}</p>
+                    <div class="news-meta">
+                        <span class="news-date">${this.formatDate(article.publishDate)}</span>
+                        <span class="news-source">${article.source}</span>
+                    </div>
+                    <div class="news-actions">
+                        <span class="view-details-hint">Click to read full article</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    setupNewsInteractions() {
+        // Handle news card clicks
+        document.querySelectorAll('.news-card.clickable').forEach(card => {
+            // Click event
+            card.addEventListener('click', (e) => {
+                const newsId = e.currentTarget.getAttribute('data-news-id');
+                this.showNewsDetails(newsId);
+            });
+
+            // Keyboard event for accessibility
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const newsId = e.currentTarget.getAttribute('data-news-id');
+                    this.showNewsDetails(newsId);
+                }
+            });
+
+            // Add hover effect
+            card.addEventListener('mouseenter', () => {
+                card.style.cursor = 'pointer';
+            });
+        });
+    }
+
+    showNewsDetails(newsId) {
+        const article = this.newsArticles.find(a => a.id === newsId);
+        if (article) {
+            this.createNewsModal(article);
+        }
+    }
+
+    createNewsModal(article) {
+        // Remove existing modal if any
+        const existingModal = document.querySelector('.news-modal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'news-modal';
+        modal.innerHTML = `
+            <div class="modal-overlay">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">${article.title}</h2>
+                        <div class="article-meta">
+                            <span class="article-date">${this.formatDate(article.publishDate)}</span>
+                            <span class="article-source">Source: ${article.source}</span>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <img src="${article.image}" alt="${article.title}" class="article-image" onerror="this.src='assets/sevalog1crop.jpg'">
+                        <div class="article-content">
+                            <p>${article.fullContent}</p>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn btn-secondary modal-close">Close</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add modal styles
+        const modalStyles = `
+            <style>
+                .news-modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 2000;
+                    animation: fadeIn 0.3s ease;
+                }
+                
+                .news-modal .modal-overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 2rem;
+                }
+                
+                .news-modal .modal-content {
+                    background: white;
+                    border-radius: 12px;
+                    max-width: 700px;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    position: relative;
+                    padding: 0;
+                }
+                
+                .article-meta {
+                    display: flex;
+                    gap: 1rem;
+                    margin-top: 0.5rem;
+                    font-size: 0.9rem;
+                    color: #666;
+                }
+                
+                .article-image {
+                    width: 100%;
+                    max-height: 300px;
+                    object-fit: cover;
+                    border-radius: 8px;
+                    margin-bottom: 1.5rem;
+                }
+                
+                .article-content p {
+                    line-height: 1.7;
+                    color: #333;
+                    font-size: 1.1rem;
+                }
+                
+                .news-meta {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 1rem;
+                    padding-top: 1rem;
+                    border-top: 1px solid #eee;
+                    font-size: 0.875rem;
+                    color: #666;
+                }
+                
+                .view-details-hint {
+                    color: var(--primary-color);
+                    font-size: 0.875rem;
+                    font-style: italic;
+                }
+                
+                .news-actions {
+                    margin-top: 0.5rem;
+                }
+                
+                @media (max-width: 768px) {
+                    .article-meta {
+                        flex-direction: column;
+                        gap: 0.25rem;
+                    }
+                    
+                    .news-meta {
+                        flex-direction: column;
+                        gap: 0.25rem;
+                    }
+                }
+            </style>
+        `;
+
+        // Append styles and modal to body
+        document.head.insertAdjacentHTML('beforeend', modalStyles);
+        document.body.appendChild(modal);
+
+        // Setup modal close functionality
+        modal.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', () => {
+                modal.remove();
+            });
+        });
+
+        // Close on overlay click
+        modal.querySelector('.modal-overlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                modal.remove();
+            }
+        });
+
+        // Close on escape key
+        document.addEventListener('keydown', function escapeHandler(e) {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', escapeHandler);
+            }
         });
     }
 
@@ -1162,6 +1641,127 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 .campaign-card {
+                    max-width: 100%;
+                    width: 100%;
+                }
+            }
+            
+            /* Clickable card styles */
+            .clickable {
+                cursor: pointer;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            
+            .clickable:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            }
+            
+            .clickable:focus {
+                outline: 2px solid var(--primary-color);
+                outline-offset: 2px;
+            }
+            
+            .story-card.clickable {
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                overflow: hidden;
+            }
+            
+            .news-card.clickable {
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                overflow: hidden;
+            }
+            
+            .stories-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 2rem;
+                max-width: 100%;
+            }
+            
+            .story-card {
+                overflow: hidden;
+                position: relative;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .story-card .story-image img {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                display: block;
+            }
+            
+            .story-card .story-content {
+                padding: 1.5rem;
+            }
+            
+            .story-subtitle {
+                color: var(--primary-color);
+                font-weight: 500;
+                margin-bottom: 0.5rem;
+            }
+            
+            .story-stats {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+            
+            .story-stats .stat {
+                background-color: #f8f9fa;
+                padding: 0.25rem 0.5rem;
+                border-radius: 4px;
+                font-size: 0.875rem;
+                color: #666;
+            }
+            
+            .story-actions, .news-actions {
+                margin-top: 1rem;
+                padding-top: 1rem;
+                border-top: 1px solid #eee;
+            }
+            
+            .news-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 2rem;
+                max-width: 100%;
+            }
+            
+            .news-card {
+                overflow: hidden;
+                position: relative;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .news-card img {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                display: block;
+            }
+            
+            .news-card .news-content {
+                padding: 1.5rem;
+            }
+            
+            @media (max-width: 767px) {
+                .stories-grid, .news-grid {
+                    grid-template-columns: 1fr;
+                    gap: 1rem;
+                }
+                
+                .story-card, .news-card {
                     max-width: 100%;
                     width: 100%;
                 }
