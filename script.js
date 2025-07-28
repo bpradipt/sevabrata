@@ -779,30 +779,40 @@ class SevabrataWebsite {
         try {
             console.log('Loading news articles...');
             
-            // Static news data for now - in a real implementation, this would come from a CMS or API
-            const newsArticles = [
-                {
-                    id: 'media-coverage-success-stories',
-                    title: 'Media Coverage of Our Success Stories',
-                    summary: 'National media coverage highlighting our successful medical interventions and community support initiatives.',
-                    fullContent: 'Sevabrata Foundation has been featured in multiple national and regional media outlets for our successful medical interventions. Our work in providing critical medical care to underprivileged families has gained recognition from various news organizations, helping to raise awareness about rural healthcare challenges and the importance of community support in addressing these issues.',
-                    image: 'assets/art1.png',
-                    publishDate: '2024-01-15',
-                    source: 'National Media',
-                    category: 'media-coverage'
-                },
-                {
-                    id: 'rural-healthcare-impact-recognition',
-                    title: 'Recognition for Rural Healthcare Impact',
-                    summary: 'Coverage of our work in bridging the healthcare gap in rural communities across India.',
-                    fullContent: 'Our foundation\'s efforts to bridge the healthcare gap in rural communities have been recognized by health policy experts and government officials. The innovative approach of combining financial assistance, medical guidance, and logistical support has proven effective in helping families access critical medical care that would otherwise be beyond their reach.',
-                    image: 'assets/art2.png',
-                    publishDate: '2023-12-20',
-                    source: 'Healthcare Journal',
-                    category: 'recognition'
-                }
-            ];
+            // Note: file:// protocol is not supported due to CORS restrictions
+            if (window.location.protocol === 'file:') {
+                console.error('File protocol detected! Please use a web server for local development.');
+                console.error('Run: python3 -m http.server 8000');
+                this.renderNews([]);
+                return;
+            }
+            
+            // Load news articles using manifest file
+            const manifestResponse = await fetch('news/manifest.json');
+            if (!manifestResponse.ok) {
+                console.error('Failed to load news manifest');
+                this.renderNews([]);
+                return;
+            }
+            
+            const manifest = await manifestResponse.json();
+            const articleFiles = manifest.articles || [];
+            const newsArticles = [];
 
+            // Load each article file listed in the manifest
+            for (const filename of articleFiles) {
+                try {
+                    const response = await fetch(`news/${filename}`);
+                    if (response.ok) {
+                        const article = await response.json();
+                        newsArticles.push(article);
+                    }
+                } catch (error) {
+                    console.error(`Error loading news article ${filename}:`, error);
+                }
+            }
+
+            console.log('News articles loaded:', newsArticles);
             this.newsArticles = newsArticles;
             this.renderNews(newsArticles);
         } catch (error) {
@@ -833,18 +843,24 @@ class SevabrataWebsite {
     }
 
     createNewsCard(article) {
+        // Handle the current JSON structure with single image field
+        const imageUrl = article.image || 'assets/sevalog1crop.jpg';
+        
+        // Handle date field (could be publishedDate or publishDate)
+        const dateString = article.publishedDate || article.publishDate;
+        const displayDate = dateString || 'Date not available';
+            
         return `
-            <div class="news-card clickable" data-news-id="${article.id}" role="button" tabindex="0">
-                <img src="${article.image}" alt="${article.title}" onerror="this.src='assets/sevalog1crop.jpg'">
+            <div class="news-card">
+                <div class="news-image clickable" data-news-id="${article.id}" role="button" tabindex="0" aria-label="Expand image for ${article.title}">
+                    <img src="${imageUrl}" alt="${article.title}" onerror="this.src='assets/sevalog1crop.jpg'">
+                </div>
                 <div class="news-content">
                     <h3>${article.title}</h3>
                     <p>${article.summary}</p>
                     <div class="news-meta">
-                        <span class="news-date">${this.formatDate(article.publishDate)}</span>
-                        <span class="news-source">${article.source}</span>
-                    </div>
-                    <div class="news-actions">
-                        <span class="view-details-hint">Click to read full article</span>
+                        <span class="news-date">${displayDate}</span>
+                        <span class="news-source">${article.source || 'Sevabrata Foundation'}</span>
                     </div>
                 </div>
             </div>
@@ -852,65 +868,60 @@ class SevabrataWebsite {
     }
 
     setupNewsInteractions() {
-        // Handle news card clicks
-        document.querySelectorAll('.news-card.clickable').forEach(card => {
+        // Handle news image clicks for expansion
+        document.querySelectorAll('.news-image.clickable').forEach(imageContainer => {
             // Click event
-            card.addEventListener('click', (e) => {
+            imageContainer.addEventListener('click', (e) => {
                 const newsId = e.currentTarget.getAttribute('data-news-id');
-                this.showNewsDetails(newsId);
+                this.expandNewsImage(newsId);
             });
 
             // Keyboard event for accessibility
-            card.addEventListener('keydown', (e) => {
+            imageContainer.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     const newsId = e.currentTarget.getAttribute('data-news-id');
-                    this.showNewsDetails(newsId);
+                    this.expandNewsImage(newsId);
                 }
             });
 
             // Add hover effect
-            card.addEventListener('mouseenter', () => {
-                card.style.cursor = 'pointer';
+            imageContainer.addEventListener('mouseenter', () => {
+                imageContainer.style.cursor = 'pointer';
             });
         });
     }
 
-    showNewsDetails(newsId) {
+    expandNewsImage(newsId) {
         const article = this.newsArticles.find(a => a.id === newsId);
         if (article) {
-            this.createNewsModal(article);
+            this.createImageExpansionModal(article);
         }
     }
 
-    createNewsModal(article) {
+    createImageExpansionModal(article) {
         // Remove existing modal if any
-        const existingModal = document.querySelector('.news-modal');
+        const existingModal = document.querySelector('.image-expansion-modal');
         if (existingModal) {
             existingModal.remove();
         }
 
         // Create modal
         const modal = document.createElement('div');
-        modal.className = 'news-modal';
+        modal.className = 'image-expansion-modal';
+        const imageUrl = article.image || 'assets/sevalog1crop.jpg';
+            
         modal.innerHTML = `
             <div class="modal-overlay">
-                <div class="modal-content">
+                <div class="modal-content image-modal">
                     <div class="modal-header">
-                        <h2 class="modal-title">${article.title}</h2>
-                        <div class="article-meta">
-                            <span class="article-date">${this.formatDate(article.publishDate)}</span>
-                            <span class="article-source">Source: ${article.source}</span>
-                        </div>
+                        <h3 class="modal-title">${article.title}</h3>
+                        <button class="modal-close-btn" aria-label="Close image">
+                            <span>&times;</span>
+                        </button>
                     </div>
                     <div class="modal-body">
-                        <img src="${article.image}" alt="${article.title}" class="article-image" onerror="this.src='assets/sevalog1crop.jpg'">
-                        <div class="article-content">
-                            <p>${article.fullContent}</p>
-                        </div>
-                    </div>
-                    <div class="modal-actions">
-                        <button class="btn btn-secondary modal-close">Close</button>
+                        <img src="${imageUrl}" alt="${article.title}" class="expanded-image" onerror="this.src='assets/sevalog1crop.jpg'">
                     </div>
                 </div>
             </div>
@@ -919,7 +930,7 @@ class SevabrataWebsite {
         // Add modal styles
         const modalStyles = `
             <style>
-                .news-modal {
+                .image-expansion-modal {
                     position: fixed;
                     top: 0;
                     left: 0;
@@ -929,80 +940,93 @@ class SevabrataWebsite {
                     animation: fadeIn 0.3s ease;
                 }
                 
-                .news-modal .modal-overlay {
+                .image-expansion-modal .modal-overlay {
                     position: absolute;
                     top: 0;
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    background: rgba(0, 0, 0, 0.8);
+                    background: rgba(0, 0, 0, 0.9);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    padding: 2rem;
+                    padding: 1rem;
                 }
                 
-                .news-modal .modal-content {
+                .image-modal {
                     background: white;
-                    border-radius: 12px;
-                    max-width: 700px;
-                    max-height: 90vh;
-                    overflow-y: auto;
-                    position: relative;
-                    padding: 0;
-                }
-                
-                .article-meta {
-                    display: flex;
-                    gap: 1rem;
-                    margin-top: 0.5rem;
-                    font-size: 0.9rem;
-                    color: #666;
-                }
-                
-                .article-image {
-                    width: 100%;
-                    max-height: 300px;
-                    object-fit: cover;
                     border-radius: 8px;
-                    margin-bottom: 1.5rem;
+                    max-width: 90vw;
+                    max-height: 90vh;
+                    overflow: hidden;
+                    position: relative;
+                    display: flex;
+                    flex-direction: column;
                 }
                 
-                .article-content p {
-                    line-height: 1.7;
-                    color: #333;
-                    font-size: 1.1rem;
-                }
-                
-                .news-meta {
+                .image-modal .modal-header {
                     display: flex;
                     justify-content: space-between;
-                    margin-top: 1rem;
-                    padding-top: 1rem;
-                    border-top: 1px solid #eee;
-                    font-size: 0.875rem;
+                    align-items: center;
+                    padding: 1rem 1.5rem;
+                    background: #f8f9fa;
+                    border-bottom: 1px solid #dee2e6;
+                    flex-shrink: 0;
+                }
+                
+                .image-modal .modal-title {
+                    margin: 0;
+                    font-size: 1.1rem;
+                    color: #333;
+                    flex: 1;
+                    padding-right: 1rem;
+                }
+                
+                .modal-close-btn {
+                    background: none;
+                    border: none;
+                    font-size: 1.5rem;
+                    cursor: pointer;
                     color: #666;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 4px;
+                    transition: background-color 0.2s ease;
+                    line-height: 1;
                 }
                 
-                .view-details-hint {
-                    color: var(--primary-color);
-                    font-size: 0.875rem;
-                    font-style: italic;
+                .modal-close-btn:hover {
+                    background-color: rgba(0, 0, 0, 0.1);
+                    color: #333;
                 }
                 
-                .news-actions {
-                    margin-top: 0.5rem;
+                .image-modal .modal-body {
+                    flex: 1;
+                    padding: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: #f8f9fa;
+                    min-height: 300px;
+                }
+                
+                .expanded-image {
+                    max-width: 100%;
+                    max-height: 100%;
+                    object-fit: contain;
+                    display: block;
                 }
                 
                 @media (max-width: 768px) {
-                    .article-meta {
-                        flex-direction: column;
-                        gap: 0.25rem;
+                    .image-modal .modal-header {
+                        padding: 0.75rem 1rem;
                     }
                     
-                    .news-meta {
-                        flex-direction: column;
-                        gap: 0.25rem;
+                    .image-modal .modal-title {
+                        font-size: 1rem;
+                    }
+                    
+                    .modal-close-btn {
+                        font-size: 1.25rem;
                     }
                 }
             </style>
@@ -1013,10 +1037,8 @@ class SevabrataWebsite {
         document.body.appendChild(modal);
 
         // Setup modal close functionality
-        modal.querySelectorAll('.modal-close').forEach(btn => {
-            btn.addEventListener('click', () => {
-                modal.remove();
-            });
+        modal.querySelector('.modal-close-btn').addEventListener('click', () => {
+            modal.remove();
         });
 
         // Close on overlay click
@@ -2029,11 +2051,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 box-sizing: border-box;
             }
             
-            .news-card img {
+            .news-image {
                 width: 100%;
                 height: 200px;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #f8f9fa;
+                position: relative;
+                cursor: pointer;
+                transition: transform 0.2s ease;
+            }
+            
+            .news-image:hover {
+                transform: translateY(-2px);
+            }
+            
+            .news-image::after {
+                content: '🔍';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                padding: 0.5rem;
+                border-radius: 50%;
+                font-size: 1.2rem;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                pointer-events: none;
+            }
+            
+            .news-image:hover::after {
+                opacity: 1;
+            }
+            
+            .news-card img {
+                width: 100%;
+                height: 100%;
                 object-fit: cover;
+                object-position: center;
                 display: block;
+                transition: filter 0.3s ease;
+            }
+            
+            .news-image:hover img {
+                filter: brightness(0.8);
             }
             
             .news-card .news-content {
@@ -2234,6 +2299,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     gap: 1rem;
                 }
                 
+                .news-image {
+                    height: 180px;
+                }
+                
+                .news-card .news-content {
+                    padding: 1rem;
+                }
+                
+                .news-card h3 {
+                    font-size: 1.1rem;
+                    line-height: 1.3;
+                }
+                
                 .story-card, .news-card {
                     max-width: 100%;
                     width: 100%;
@@ -2260,6 +2338,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 .reports-intro {
                     margin-bottom: 2rem;
+                }
+                
+                /* Tablet responsive styles */
+                @media (max-width: 1024px) and (min-width: 768px) {
+                    .news-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 1.5rem;
+                    }
+                    
+                    .news-image {
+                        height: 190px;
+                    }
+                }
+                
+                /* Small mobile responsive styles */
+                @media (max-width: 480px) {
+                    .news-image {
+                        height: 160px;
+                    }
+                    
+                    .news-card .news-content {
+                        padding: 0.75rem;
+                    }
+                    
+                    .news-card h3 {
+                        font-size: 1rem;
+                        margin-bottom: 0.5rem;
+                    }
+                    
+                    .news-card p {
+                        font-size: 0.9rem;
+                        line-height: 1.4;
+                    }
+                    
+                    .news-meta {
+                        font-size: 0.8rem;
+                    }
                 }
             }
         </style>
