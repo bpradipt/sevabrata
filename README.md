@@ -31,7 +31,6 @@ sevabrata/
 │   └── _config.json       # Campaign configuration
 ├── success-stories/        # Success story files
 │   └── *.json             # Individual success story files
-├── legacy/                 # Original website files (backup)
 └── README.md               # This documentation
 ```
 

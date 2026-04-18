@@ -66,7 +66,6 @@ sevabrata/
 ├── success-stories/          # Success story data
 │   ├── manifest.json        # Lists available success stories
 │   └── *.json               # Individual success stories
-├── legacy/                   # Old website files (for reference)
 └── admin.html               # Admin panel (future enhancement)
 ```
 
